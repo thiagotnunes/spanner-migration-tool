@@ -30,7 +30,7 @@ import (
 // Conv contains all schema and data conversion state.
 type Conv struct {
 	mode               mode                     // Schema mode or data mode.
-	SpSchema           ddl.Schema               // Maps Spanner table name to Spanner schema.
+	SpSchema           ddl.TableSchema          // Maps Spanner table name to Spanner schema.
 	SyntheticPKeys     map[string]SyntheticPKey // Maps Spanner table name to synthetic primary key (if needed).
 	SrcSchema          map[string]schema.Table  // Maps source-DB table name to schema information.
 	SchemaIssues       map[string]TableIssues   // Maps source-DB table/col to list of schema conversion issues.
@@ -287,7 +287,7 @@ type TableDetails struct {
 // MakeConv returns a default-configured Conv.
 func MakeConv() *Conv {
 	return &Conv{
-		SpSchema:       ddl.NewSchema(),
+		SpSchema:       ddl.NewTableSchema(),
 		SyntheticPKeys: make(map[string]SyntheticPKey),
 		SrcSchema:      make(map[string]schema.Table),
 		SchemaIssues:   make(map[string]TableIssues),

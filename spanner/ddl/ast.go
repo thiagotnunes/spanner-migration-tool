@@ -311,7 +311,7 @@ type CreateTable struct {
 }
 
 // PrintCreateTable unparses a CREATE TABLE statement.
-func (ct CreateTable) PrintCreateTable(spSchema Schema, config Config) string {
+func (ct CreateTable) PrintCreateTable(spSchema TableSchema, config Config) string {
 	var col []string
 	var colComment []string
 	var keys []string
@@ -454,7 +454,7 @@ func isStoredColumnKeyPartOfPrimaryKey(ct CreateTable, colId string) bool {
 }
 
 // PrintForeignKeyAlterTable unparses the foreign keys using ALTER TABLE.
-func (k Foreignkey) PrintForeignKeyAlterTable(spannerSchema Schema, c Config, tableId string) string {
+func (k Foreignkey) PrintForeignKeyAlterTable(spannerSchema TableSchema, c Config, tableId string) string {
 	var cols, referCols []string
 	for i, col := range k.ColIds {
 		cols = append(cols, spannerSchema[tableId].ColDefs[col].Name)
@@ -467,11 +467,11 @@ func (k Foreignkey) PrintForeignKeyAlterTable(spannerSchema Schema, c Config, ta
 	return fmt.Sprintf("ALTER TABLE %s ADD %sFOREIGN KEY (%s) REFERENCES %s (%s)", c.quote(spannerSchema[tableId].Name), s, strings.Join(cols, ", "), c.quote(spannerSchema[k.ReferTableId].Name), strings.Join(referCols, ", "))
 }
 
-// Schema stores a map of table names and Tables.
-type Schema map[string]CreateTable
+// TableSchema stores a map of table names and Tables.
+type TableSchema map[string]CreateTable
 
-// NewSchema creates a new Schema object.
-func NewSchema() Schema {
+// NewTableSchema creates a new Schema object.
+func NewTableSchema() TableSchema {
 	return make(map[string]CreateTable)
 }
 
@@ -480,7 +480,7 @@ func NewSchema() Schema {
 //
 // TODO: Move this method to mapping.go and preserve the table names in sorted
 // order in conv so that we don't need to order the table names multiple times.
-func GetSortedTableIdsBySpName(s Schema) []string {
+func GetSortedTableIdsBySpName(s TableSchema) []string {
 
 	var tableNames, sortedTableNames, sortedTableIds []string
 	tableNameIdMap := map[string]string{}
@@ -523,11 +523,11 @@ func GetSortedTableIdsBySpName(s Schema) []string {
 	return sortedTableIds
 }
 
-// GetDDL returns the string representation of Spanner schema represented by Schema struct.
+// GetDDL returns the string representation of Spanner schema represented by TableSchema struct.
 // Tables are printed in alphabetical order with one exception: interleaved
 // tables are potentially out of order since they must appear after the
 // definition of their parent table.
-func GetDDL(c Config, tableSchema Schema, sequenceSchema map[string]Sequence) []string {
+func GetDDL(c Config, tableSchema TableSchema, sequenceSchema map[string]Sequence) []string {
 	var ddl []string
 
 	for _, seq := range sequenceSchema {
@@ -566,7 +566,7 @@ func GetDDL(c Config, tableSchema Schema, sequenceSchema map[string]Sequence) []
 }
 
 // CheckInterleaved checks if schema contains interleaved tables.
-func (s Schema) CheckInterleaved() bool {
+func (s TableSchema) CheckInterleaved() bool {
 	for _, table := range s {
 		if table.ParentId != "" {
 			return true

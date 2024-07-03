@@ -95,7 +95,7 @@ func GetTableIdFromSrcName(srcSchema map[string]schema.Table, tableName string) 
 	return "", fmt.Errorf("table id not found for source-db table %s", tableName)
 }
 
-func GetTableIdFromSpName(spSchema ddl.Schema, tableName string) (string, error) {
+func GetTableIdFromSpName(spSchema ddl.TableSchema, tableName string) (string, error) {
 	for tableId, table := range spSchema {
 		if tableName == table.Name {
 			return tableId, nil

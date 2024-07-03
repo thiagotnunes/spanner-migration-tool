@@ -137,7 +137,7 @@ func DropSequence(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(convm)
 }
 
-func dropSequenceHelper(columnsUsingSeq map[string][]string, tables ddl.Schema) ddl.Schema {
+func dropSequenceHelper(columnsUsingSeq map[string][]string, tables ddl.TableSchema) ddl.TableSchema {
 	for tableName, columns := range columnsUsingSeq {
 		for _, colId := range columns {
 			columnDef := tables[tableName].ColDefs[colId]

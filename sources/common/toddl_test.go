@@ -230,7 +230,7 @@ func Test_cvtIndexes(t *testing.T) {
 			},
 		},
 		UsedNames: map[string]bool{},
-		SpSchema: ddl.Schema{
+		SpSchema: ddl.TableSchema{
 			"t1": ddl.CreateTable{
 				Name:   "table1",
 				ColIds: []string{"c1", "c2", "c3"},
@@ -301,7 +301,7 @@ func Test_cvtForeignKeysForAReferenceTable(t *testing.T) {
 			},
 		},
 		UsedNames: map[string]bool{},
-		SpSchema: ddl.Schema{
+		SpSchema: ddl.TableSchema{
 			"t2": ddl.CreateTable{
 				Name:   "table2",
 				ColIds: []string{"c3"},

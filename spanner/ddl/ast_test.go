@@ -196,7 +196,7 @@ func TestPrintCreateTable(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		assert.Equal(t, tc.expected, tc.ct.PrintCreateTable(Schema{}, Config{ProtectIds: tc.protectIds}))
+		assert.Equal(t, tc.expected, tc.ct.PrintCreateTable(TableSchema{}, Config{ProtectIds: tc.protectIds}))
 	}
 }
 
@@ -270,7 +270,7 @@ func TestPrintCreateTablePG(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		assert.Equal(t, tc.expected, tc.ct.PrintCreateTable(Schema{}, Config{ProtectIds: tc.protectIds, SpDialect: constants.DIALECT_POSTGRESQL}))
+		assert.Equal(t, tc.expected, tc.ct.PrintCreateTable(TableSchema{}, Config{ProtectIds: tc.protectIds, SpDialect: constants.DIALECT_POSTGRESQL}))
 	}
 }
 
@@ -563,7 +563,7 @@ func TestPGPrintSequence(t *testing.T) {
 }
 
 func TestGetDDL(t *testing.T) {
-	s := Schema{
+	s := TableSchema{
 		"t1": CreateTable{
 			Name:   "table1",
 			Id:     "t1",
@@ -666,12 +666,12 @@ func TestGetDDL(t *testing.T) {
 	}
 	e4 := []string{
 		"CREATE SEQUENCE sequence1 OPTIONS (sequence_kind='bit_reversed_positive', skip_range_min = 0, skip_range_max = 5, start_with_counter = 7) "}
-	sequencesOnly := GetDDL(Config{}, Schema{}, sequences)
+	sequencesOnly := GetDDL(Config{}, TableSchema{}, sequences)
 	assert.ElementsMatch(t, e4, sequencesOnly)
 }
 
 func TestGetPGDDL(t *testing.T) {
-	s := Schema{
+	s := TableSchema{
 		"t1": CreateTable{
 			Name:   "table1",
 			Id:     "t1",
@@ -778,26 +778,26 @@ func TestGetPGDDL(t *testing.T) {
 	}
 	e4 := []string{
 		"CREATE SEQUENCE sequence1 BIT_REVERSED_POSITIVE SKIP RANGE 0 5 START COUNTER WITH 7"}
-	sequencesOnly := GetDDL(Config{SpDialect: constants.DIALECT_POSTGRESQL}, Schema{}, sequences)
+	sequencesOnly := GetDDL(Config{SpDialect: constants.DIALECT_POSTGRESQL}, TableSchema{}, sequences)
 	assert.ElementsMatch(t, e4, sequencesOnly)
 }
 
 func TestGetSortedTableIdsBySpName(t *testing.T) {
 	testCases := []struct {
 		description string
-		schema      Schema
+		schema      TableSchema
 		expected    []string
 	}{
 		// Test Case 1: Empty schema
 		{
 			description: "Empty schema",
-			schema:      Schema{},
+			schema:      TableSchema{},
 			expected:    []string{},
 		},
 		// Test Case 2: Schema with one table
 		{
 			description: "Schema with one table",
-			schema: Schema{
+			schema: TableSchema{
 				"table_id_1": CreateTable{
 					Name: "Table1",
 					Id:   "table_id_1",
@@ -808,7 +808,7 @@ func TestGetSortedTableIdsBySpName(t *testing.T) {
 		// Test Case 3: Schema with interleaved tables
 		{
 			description: "Schema with interleaved tables",
-			schema: Schema{
+			schema: TableSchema{
 				"table_id_1": CreateTable{
 					Name: "Table1",
 					Id:   "table_id_1",
@@ -829,7 +829,7 @@ func TestGetSortedTableIdsBySpName(t *testing.T) {
 		// Test Case 4: Schema with tables having no parent
 		{
 			description: "Schema with tables having no parent",
-			schema: Schema{
+			schema: TableSchema{
 				"table_id_1": CreateTable{
 					Name: "Table1",
 					Id:   "table_id_1",
@@ -844,7 +844,7 @@ func TestGetSortedTableIdsBySpName(t *testing.T) {
 		// Test Case 5: Schema with a table having a non-existent parent
 		{
 			description: "Schema with a table having a non-existent parent",
-			schema: Schema{
+			schema: TableSchema{
 				"table_id_1": CreateTable{
 					Name:     "Table1",
 					Id:       "table_id_1",
