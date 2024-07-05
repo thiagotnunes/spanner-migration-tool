@@ -528,8 +528,14 @@ func GetSortedTableIdsBySpName(s TableSchema) []string {
 // Tables are printed in alphabetical order with one exception: interleaved
 // tables are potentially out of order since they must appear after the
 // definition of their parent table.
-func GetDDL(c Config, tableSchema TableSchema, sequenceSchema map[string]Sequence) []string {
+func GetDDL(c Config, namedSchemas NamedSchemas, tableSchema TableSchema, sequenceSchema map[string]Sequence) []string {
 	var ddl []string
+
+	if c.NamedSchemas {
+		for _, namedSchema := range namedSchemas {
+			ddl = append(ddl, namedSchema.PrintNamedSchema())
+		}
+	}
 
 	for _, seq := range sequenceSchema {
 		if c.SpDialect == constants.DIALECT_POSTGRESQL {
@@ -643,6 +649,12 @@ func (seq Sequence) PGPrintSequence() string {
 	return seqDDL
 }
 
+type NamedSchemas = map[string]CreateNamedSchema
+
 type CreateNamedSchema struct {
 	Name string
+}
+
+func (ns CreateNamedSchema) PrintNamedSchema() string {
+	return fmt.Sprintf("CREATE NAMESPACE %s", ns.Name)
 }
