@@ -98,9 +98,29 @@ func (isi InfoSchemaImpl) GetTableName(schema string, tableName string) string {
 }
 
 // GetSchemas return a list of schemas in the selected database.
-// This is currently only supported for PostgreSQL.
 func (isi InfoSchemaImpl) GetSchemas() ([]schema.NamedSchema, error) {
-	return []schema.NamedSchema{}, nil
+	q := "SELECT schema_name FROM information_schema.schemata"
+	stmt := spanner.Statement{SQL: q}
+	iter := isi.Client.Single().Query(isi.Ctx, stmt)
+	defer iter.Stop()
+
+	var name string
+	var namedSchemas []schema.NamedSchema
+	for {
+		row, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("couldn't get schemas: %w", err)
+		}
+		err = row.Columns(&name)
+		if err != nil {
+			return nil, err
+		}
+		namedSchemas = append(namedSchemas, schema.NamedSchema{Name: name})
+	}
+	return namedSchemas, nil
 }
 
 // GetTables return list of tables in the selected database.
