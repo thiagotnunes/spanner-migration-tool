@@ -656,5 +656,5 @@ type CreateNamedSchema struct {
 }
 
 func (ns CreateNamedSchema) PrintNamedSchema() string {
-	return fmt.Sprintf("CREATE NAMESPACE %s", ns.Name)
+	return fmt.Sprintf("CREATE SCHEMA %s", ns.Name)
 }

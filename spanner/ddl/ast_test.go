@@ -129,7 +129,7 @@ func TestPrintPkOrIndexKey(t *testing.T) {
 }
 
 func TestPrintNamedSchema(t *testing.T) {
-	assert.Equal(t, "CREATE NAMESPACE custom_schema", CreateNamedSchema{Name: "custom_schema"}.PrintNamedSchema())
+	assert.Equal(t, "CREATE SCHEMA custom_schema", CreateNamedSchema{Name: "custom_schema"}.PrintNamedSchema())
 }
 
 func TestPrintCreateTable(t *testing.T) {
@@ -678,8 +678,8 @@ func TestGetDDL(t *testing.T) {
 		"test_schema":   CreateNamedSchema{Name: "test_schema"},
 	}
 	e5 := []string{
-		"CREATE NAMESPACE custom_schema",
-		"CREATE NAMESPACE test_schema",
+		"CREATE SCHEMA custom_schema",
+		"CREATE SCHEMA test_schema",
 	}
 	namedSchemasOnly := GetDDL(Config{NamedSchemas: true}, namedSchemas, TableSchema{}, make(map[string]Sequence))
 	assert.ElementsMatch(t, e5, namedSchemasOnly)
@@ -801,8 +801,8 @@ func TestGetPGDDL(t *testing.T) {
 		"test_schema":   CreateNamedSchema{Name: "test_schema"},
 	}
 	e5 := []string{
-		"CREATE NAMESPACE custom_schema",
-		"CREATE NAMESPACE test_schema",
+		"CREATE SCHEMA custom_schema",
+		"CREATE SCHEMA test_schema",
 	}
 	namedSchemasOnly := GetDDL(Config{SpDialect: constants.DIALECT_POSTGRESQL, NamedSchemas: true}, namedSchemas, TableSchema{}, make(map[string]Sequence))
 	assert.ElementsMatch(t, e5, namedSchemasOnly)
