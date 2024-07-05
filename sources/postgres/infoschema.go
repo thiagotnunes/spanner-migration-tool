@@ -38,7 +38,7 @@ import (
 )
 
 // System schemas which are intentionally not exported
-var ignoredSchemas = map[string]bool{
+var IgnoredSchemas = map[string]bool{
 	"google_vacuum_mgmt": true,
 	"information_schema": true,
 	"postgres":           true,
@@ -272,7 +272,7 @@ func (isi InfoSchemaImpl) GetSchemas() ([]schema.NamedSchema, error) {
 	var namedSchemas []schema.NamedSchema
 	for rows.Next() {
 		rows.Scan(&name)
-		if !ignoredSchemas[name] {
+		if !IgnoredSchemas[name] {
 			namedSchemas = append(namedSchemas, schema.NamedSchema{Name: name})
 		}
 	}
@@ -295,7 +295,7 @@ func (isi InfoSchemaImpl) GetTables() ([]common.SchemaAndName, error) {
 	var tables []common.SchemaAndName
 	for rows.Next() {
 		rows.Scan(&tableSchema, &tableName)
-		if !ignoredSchemas[tableSchema] {
+		if !IgnoredSchemas[tableSchema] {
 			tables = append(tables, common.SchemaAndName{Schema: tableSchema, Name: tableName})
 		}
 	}

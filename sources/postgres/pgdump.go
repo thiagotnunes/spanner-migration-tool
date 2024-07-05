@@ -224,6 +224,10 @@ func processStatements(conv *internal.Conv, rawStmts []*pg_query.RawStmt) *copyO
 			if conv.SchemaMode() {
 				processCreateStmt(conv, n.CreateStmt)
 			}
+		case *pg_query.Node_CreateSchemaStmt:
+			if conv.SchemaMode() {
+				processCreateSchemaStmt(conv, n.CreateSchemaStmt)
+			}
 		case *pg_query.Node_InsertStmt:
 			return processInsertStmt(conv, n.InsertStmt)
 		case *pg_query.Node_VariableSetStmt:
@@ -312,6 +316,16 @@ func processAlterTableStmt(conv *internal.Conv, n *pg_query.AlterTableStmt) {
 		conv.SkipStatement(printNodeType(n))
 		internal.VerbosePrintf("Processing %v statement: table %s not found", printNodeType(n), tableName)
 		logger.Log.Debug(fmt.Sprintf("Processing %v statement: table %s not found", printNodeType(n), tableName))
+	}
+}
+
+func processCreateSchemaStmt(conv *internal.Conv, n *pg_query.CreateSchemaStmt) {
+	name := n.GetSchemaname()
+	if name == "" {
+		logStmtError(conv, n, fmt.Errorf("schema name is empty"))
+	}
+	if !IgnoredSchemas[name] {
+		conv.SrcNamedSchemas[name] = schema.NamedSchema{Name: name}
 	}
 }
 

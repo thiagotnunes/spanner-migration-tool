@@ -27,6 +27,7 @@ import (
 
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/common/constants"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/internal"
+	"github.com/GoogleCloudPlatform/spanner-migration-tool/schema"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/sources/common"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/spanner/ddl"
 	pg_query "github.com/pganalyze/pg_query_go/v2"
@@ -719,6 +720,24 @@ COPY test (id, a, b, c, d, e, f, g) FROM stdin;
 		assert.Equal(t, tc.expectedData, rows, tc.name+": Data rows did not match")
 		assert.Equal(t, conv.BadRows(), int64(6), tc.name+": Error count did not match")
 	}
+}
+
+func TestProcessNamespaces(t *testing.T) {
+	expectedSchemas := map[string]schema.NamedSchema{
+		"custom_schema": {Name: "custom_schema"},
+	}
+	conv, _ := runProcessPgDump(`
+		CREATE SCHEMA custom_schema;
+		CREATE SCHEMA google_vacuum_mgmt; -- System level schema ignored
+		CREATE SCHEMA information_schema; -- System level schema ignored
+		CREATE SCHEMA postgres;           -- System level schema ignored
+		CREATE SCHEMA pg_catalog;         -- System level schema ignored
+		CREATE SCHEMA pg_temp_1;          -- System level schema ignored
+		CREATE SCHEMA pg_toast;           -- System level schema ignored
+		CREATE SCHEMA pg_toast_temp_1;    -- System level schema ignored
+	`)
+	assert.Equal(t, expectedSchemas, conv.SrcNamedSchemas)
+	assert.Equal(t, expectedSchemas, conv.SpNamedSchemas)
 }
 
 func TestProcessPgDumpPGTarget(t *testing.T) {
