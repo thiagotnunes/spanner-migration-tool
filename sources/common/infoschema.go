@@ -32,6 +32,7 @@ const DefaultWorkers = 20 // Default to 20 - observed diminishing returns above 
 type InfoSchema interface {
 	GetToDdl() ToDdl
 	GetTableName(schema string, tableName string) string
+	GetSchemas() ([]schema.NamedSchema, error)
 	GetTables() ([]SchemaAndName, error)
 	GetColumns(conv *internal.Conv, table SchemaAndName, constraints map[string][]string, primaryKeys []string) (map[string]schema.Column, []string, error)
 	GetRowsFromTable(conv *internal.Conv, srcTable string) (interface{}, error)
@@ -64,20 +65,20 @@ type InfoSchemaInterface interface {
 	ProcessData(conv *internal.Conv, infoSchema InfoSchema, additionalAttributes internal.AdditionalDataAttributes)
 	SetRowStats(conv *internal.Conv, infoSchema InfoSchema)
 	processTable(conv *internal.Conv, table SchemaAndName, infoSchema InfoSchema) (schema.Table, error)
-	GetIncludedSrcTablesFromConv(conv *internal.Conv) (schemaToTablesMap map[string]internal.SchemaDetails, err error) 
+	GetIncludedSrcTablesFromConv(conv *internal.Conv) (schemaToTablesMap map[string]internal.SchemaDetails, err error)
 }
-type InfoSchemaImpl struct {}
+type InfoSchemaImpl struct{}
 
 type ProcessSchemaInterface interface {
 	ProcessSchema(conv *internal.Conv, infoSchema InfoSchema, numWorkers int, attributes internal.AdditionalSchemaAttributes, s SchemaToSpannerInterface, uo UtilsOrderInterface, is InfoSchemaInterface) error
 }
 
-type ProcessSchemaImpl struct {}
+type ProcessSchemaImpl struct{}
 
 // ProcessSchema performs schema conversion for source database
 // 'db'. Information schema tables are a broadly supported ANSI standard,
 // and we use them to obtain source database's schema information.
-func (ps* ProcessSchemaImpl) ProcessSchema(conv *internal.Conv, infoSchema InfoSchema, numWorkers int, attributes internal.AdditionalSchemaAttributes, s SchemaToSpannerInterface, uo UtilsOrderInterface, is InfoSchemaInterface) error {
+func (ps *ProcessSchemaImpl) ProcessSchema(conv *internal.Conv, infoSchema InfoSchema, numWorkers int, attributes internal.AdditionalSchemaAttributes, s SchemaToSpannerInterface, uo UtilsOrderInterface, is InfoSchemaInterface) error {
 
 	tableCount, err := is.GenerateSrcSchema(conv, infoSchema, numWorkers)
 	if err != nil {
@@ -99,6 +100,16 @@ func (ps* ProcessSchemaImpl) ProcessSchema(conv *internal.Conv, infoSchema InfoS
 }
 
 func (is *InfoSchemaImpl) GenerateSrcSchema(conv *internal.Conv, infoSchema InfoSchema, numWorkers int) (int, error) {
+	schemas, err := infoSchema.GetSchemas()
+	fmt.Println("fetched schemas", schemas)
+	if err != nil {
+		return 0, err
+	}
+	conv.SrcNamedSchemas = make(map[string]schema.NamedSchema)
+	for _, schema := range schemas {
+		conv.SrcNamedSchemas[schema.Name] = schema
+	}
+
 	tables, err := infoSchema.GetTables()
 	fmt.Println("fetched tables", tables)
 	if err != nil {

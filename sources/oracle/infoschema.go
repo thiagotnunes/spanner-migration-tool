@@ -151,6 +151,12 @@ func (isi InfoSchemaImpl) GetRowCount(table common.SchemaAndName) (int64, error)
 	return 0, nil
 }
 
+// GetSchemas return a list of schemas in the selected database.
+// This is currently only supported for PostgreSQL.
+func (isi InfoSchemaImpl) GetSchemas() ([]schema.NamedSchema, error) {
+	return []schema.NamedSchema{}, nil
+}
+
 func (isi InfoSchemaImpl) GetTables() ([]common.SchemaAndName, error) {
 	q := fmt.Sprintf("SELECT table_name FROM all_tables WHERE owner = '%s'", isi.DbName)
 	rows, err := isi.Db.Query(q)

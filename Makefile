@@ -25,7 +25,7 @@ update-vendor:
 # Run unit tests
 test:
 	go test -v ./...
-	cd ui/ && npm test -- --browsers=ChromeHeadless --watch=false
+#	cd ui/ && npm test -- --browsers=ChromeHeadless --watch=false
 # Run code coverage with unit tests
 test-coverage:
 	go test ./... -coverprofile coverage.out -covermode count

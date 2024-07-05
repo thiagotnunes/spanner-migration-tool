@@ -46,6 +46,20 @@ type mockSpec struct {
 
 func TestProcessSchema(t *testing.T) {
 	ms := []mockSpec{
+		// db call to fetch schemas
+		{
+			query: "SELECT (.+) FROM pg_catalog.pg_namespace",
+			args:  []driver.Value{},
+			cols:  []string{"nspname"},
+			rows: [][]driver.Value{
+				{"pg_toast"},
+				{"pg_catalog"},
+				{"information_schema"},
+				{"public"},
+				{"google_vacuum_mgmt"},
+				{"custom_schema"},
+			},
+		},
 		{
 			query: "SELECT table_schema, table_name FROM information_schema.tables where table_type = 'BASE TABLE'",
 			cols:  []string{"table_schema", "table_name"},
@@ -303,6 +317,7 @@ func TestProcessSchema(t *testing.T) {
 			},
 			PrimaryKeys: []ddl.IndexKey{ddl.IndexKey{ColId: "ref_id", Order: 1}, ddl.IndexKey{ColId: "ref_txt", Order: 2}}},
 	}
+	assert.Equal(t, map[string]schema.NamedSchema{"public": {Name: "public"}, "custom_schema": {Name: "custom_schema"}}, conv.SrcNamedSchemas)
 	internal.AssertSpSchema(conv, t, expectedSchema, stripSchemaComments(conv.SpSchema))
 	cartTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "cart")
 	assert.Equal(t, nil, err)
@@ -467,6 +482,20 @@ func TestConvertSqlRow_MultiCol(t *testing.T) {
 	// i.e. ConvertSqlRow uses the schemas built by
 	// ProcessInfoSchema.
 	ms := []mockSpec{
+		// db call to fetch schemas
+		{
+			query: "SELECT (.+) FROM pg_catalog.pg_namespace",
+			args:  []driver.Value{},
+			cols:  []string{"nspname"},
+			rows: [][]driver.Value{
+				{"pg_toast"},
+				{"pg_catalog"},
+				{"information_schema"},
+				{"public"},
+				{"google_vacuum_mgmt"},
+				{"test"},
+			},
+		},
 		{
 			query: "SELECT table_schema, table_name FROM information_schema.tables where table_type = 'BASE TABLE'",
 			cols:  []string{"table_schema", "table_name"},
