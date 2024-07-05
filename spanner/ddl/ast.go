@@ -642,3 +642,7 @@ func (seq Sequence) PGPrintSequence() string {
 
 	return seqDDL
 }
+
+type CreateNamedSchema struct {
+	Name string
+}

@@ -416,7 +416,7 @@ func Test_SchemaToSpannerSequenceHelper(t *testing.T) {
 
 func Test_SchemaToSpannerNamedSchemaHelper(t *testing.T) {
 	expectedConv := internal.MakeConv()
-	expectedConv.SpNamedSchemas = map[string]schema.NamedSchema{
+	expectedConv.SpNamedSchemas = map[string]ddl.CreateNamedSchema{
 		"public":        {Name: "public"},
 		"custom_schema": {Name: "custom_schema"},
 	}

@@ -723,7 +723,10 @@ COPY test (id, a, b, c, d, e, f, g) FROM stdin;
 }
 
 func TestProcessNamespaces(t *testing.T) {
-	expectedSchemas := map[string]schema.NamedSchema{
+	expectedSrcSchemas := map[string]schema.NamedSchema{
+		"custom_schema": {Name: "custom_schema"},
+	}
+	expectedSpSchemas := map[string]ddl.CreateNamedSchema{
 		"custom_schema": {Name: "custom_schema"},
 	}
 	conv, _ := runProcessPgDump(`
@@ -736,8 +739,8 @@ func TestProcessNamespaces(t *testing.T) {
 		CREATE SCHEMA pg_toast;           -- System level schema ignored
 		CREATE SCHEMA pg_toast_temp_1;    -- System level schema ignored
 	`)
-	assert.Equal(t, expectedSchemas, conv.SrcNamedSchemas)
-	assert.Equal(t, expectedSchemas, conv.SpNamedSchemas)
+	assert.Equal(t, expectedSrcSchemas, conv.SrcNamedSchemas)
+	assert.Equal(t, expectedSpSchemas, conv.SpNamedSchemas)
 }
 
 func TestProcessPgDumpPGTarget(t *testing.T) {

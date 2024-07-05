@@ -208,7 +208,7 @@ func (ss *SchemaToSpannerImpl) SchemaToSpannerSequenceHelper(conv *internal.Conv
 }
 
 func (ss *SchemaToSpannerImpl) SchemaToSpannerNamedSchemaHelper(conv *internal.Conv, srcNamedSchema schema.NamedSchema) error {
-	conv.SpNamedSchemas[srcNamedSchema.Name] = schema.NamedSchema{
+	conv.SpNamedSchemas[srcNamedSchema.Name] = ddl.CreateNamedSchema{
 		Name: srcNamedSchema.Name,
 	}
 	return nil
