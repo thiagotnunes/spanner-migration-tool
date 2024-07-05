@@ -252,9 +252,9 @@ func (sp *SpannerAccessorImpl) CreateDatabase(ctx context.Context, adminClient s
 	} else {
 		req.CreateStatement = "CREATE DATABASE `" + dbName + "`"
 		if migrationType == constants.DATAFLOW_MIGRATION {
-			req.ExtraStatements = ddl.GetDDL(ddl.Config{Comments: false, ProtectIds: true, Tables: true, ForeignKeys: true, SpDialect: conv.SpDialect, Source: driver}, conv.SpSchema, conv.SpSequences)
+			req.ExtraStatements = ddl.GetDDL(ddl.Config{Comments: false, ProtectIds: true, NamedSchemas: true, Tables: true, ForeignKeys: true, SpDialect: conv.SpDialect, Source: driver}, conv.SpSchema, conv.SpSequences)
 		} else {
-			req.ExtraStatements = ddl.GetDDL(ddl.Config{Comments: false, ProtectIds: true, Tables: true, ForeignKeys: false, SpDialect: conv.SpDialect, Source: driver}, conv.SpSchema, conv.SpSequences)
+			req.ExtraStatements = ddl.GetDDL(ddl.Config{Comments: false, ProtectIds: true, NamedSchemas: true, Tables: true, ForeignKeys: false, SpDialect: conv.SpDialect, Source: driver}, conv.SpSchema, conv.SpSequences)
 		}
 
 	}

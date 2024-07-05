@@ -24,7 +24,7 @@ update-vendor:
 	git commit -m "Update Vendor files" --no-edit
 # Run unit tests
 test:
-	go test -v ./...
+	grc go test -v ./...
 #	cd ui/ && npm test -- --browsers=ChromeHeadless --watch=false
 # Run code coverage with unit tests
 test-coverage:

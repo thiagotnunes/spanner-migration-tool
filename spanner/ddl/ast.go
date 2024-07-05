@@ -184,12 +184,13 @@ type ColumnDef struct {
 
 // Config controls how AST nodes are printed (aka unparsed).
 type Config struct {
-	Comments    bool // If true, print comments.
-	ProtectIds  bool // If true, table and col names are quoted using backticks (avoids reserved-word issue).
-	Tables      bool // If true, print tables
-	ForeignKeys bool // If true, print foreign key constraints.
-	SpDialect   string
-	Source      string //SourceDB information for determining case-sensitivity handling for PGSQL
+	Comments     bool // If true, print comments.
+	ProtectIds   bool // If true, table and col names are quoted using backticks (avoids reserved-word issue).
+	NamedSchemas bool // If true, print named schemas
+	Tables       bool // If true, print tables
+	ForeignKeys  bool // If true, print foreign key constraints.
+	SpDialect    string
+	Source       string //SourceDB information for determining case-sensitivity handling for PGSQL
 }
 
 func isIdentifierReservedInPG(identifier string) bool {
