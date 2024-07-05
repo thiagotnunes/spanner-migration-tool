@@ -413,3 +413,29 @@ func Test_SchemaToSpannerSequenceHelper(t *testing.T) {
 		assert.Equal(t, expectedConv, conv)
 	}
 }
+
+func Test_SchemaToSpannerNamedSchemaHelper(t *testing.T) {
+	expectedConv := internal.MakeConv()
+	expectedConv.SpNamedSchemas = map[string]schema.NamedSchema{
+		"public":        {Name: "public"},
+		"custom_schema": {Name: "custom_schema"},
+	}
+	tc := []struct {
+		expectedConv    *internal.Conv
+		srcNamedSchemas []schema.NamedSchema
+	}{
+		{
+			expectedConv:    expectedConv,
+			srcNamedSchemas: []schema.NamedSchema{{Name: "public"}, {Name: "custom_schema"}},
+		},
+	}
+
+	for _, tt := range tc {
+		conv := internal.MakeConv()
+		ss := SchemaToSpannerImpl{}
+		for _, srcSchema := range tt.srcNamedSchemas {
+			ss.SchemaToSpannerNamedSchemaHelper(conv, srcSchema)
+		}
+		assert.Equal(t, expectedConv, conv)
+	}
+}

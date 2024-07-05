@@ -311,9 +311,11 @@ func MakeConv() *Conv {
 			StreamingStats: streamingStats{},
 			MigrationType:  migration.MigrationData_SCHEMA_ONLY.Enum(),
 		},
-		Rules:        []Rule{},
-		SpSequences:  make(map[string]ddl.Sequence),
-		SrcSequences: make(map[string]ddl.Sequence),
+		Rules:           []Rule{},
+		SpSequences:     make(map[string]ddl.Sequence),
+		SrcSequences:    make(map[string]ddl.Sequence),
+		SpNamedSchemas:  make(map[string]schema.NamedSchema),
+		SrcNamedSchemas: make(map[string]schema.NamedSchema),
 	}
 }
 

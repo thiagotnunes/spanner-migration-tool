@@ -105,7 +105,6 @@ func (is *InfoSchemaImpl) GenerateSrcSchema(conv *internal.Conv, infoSchema Info
 	if err != nil {
 		return 0, err
 	}
-	conv.SrcNamedSchemas = make(map[string]schema.NamedSchema)
 	for _, schema := range schemas {
 		conv.SrcNamedSchemas[schema.Name] = schema
 	}

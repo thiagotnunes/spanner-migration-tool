@@ -66,6 +66,10 @@ func (ss *SchemaToSpannerImpl) SchemaToSpannerDDL(conv *internal.Conv, toddl ToD
 	for _, srcSequence := range srcSequences {
 		ss.SchemaToSpannerSequenceHelper(conv, srcSequence)
 	}
+	srcNamedSchemas := conv.SrcNamedSchemas
+	for _, srcNamedSchema := range srcNamedSchemas {
+		ss.SchemaToSpannerNamedSchemaHelper(conv, srcNamedSchema)
+	}
 	tableIds := GetSortedTableIdsBySrcName(conv.SrcSchema)
 	for _, tableId := range tableIds {
 		srcTable := conv.SrcSchema[tableId]
@@ -199,6 +203,13 @@ func (ss *SchemaToSpannerImpl) SchemaToSpannerSequenceHelper(conv *internal.Conv
 			StartWithCounter: srcSequence.StartWithCounter,
 		}
 		conv.SpSequences[srcSequence.Id] = spSequence
+	}
+	return nil
+}
+
+func (ss *SchemaToSpannerImpl) SchemaToSpannerNamedSchemaHelper(conv *internal.Conv, srcNamedSchema schema.NamedSchema) error {
+	conv.SpNamedSchemas[srcNamedSchema.Name] = schema.NamedSchema{
+		Name: srcNamedSchema.Name,
 	}
 	return nil
 }
