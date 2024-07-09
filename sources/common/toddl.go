@@ -268,6 +268,8 @@ func CvtForeignKeysHelper(conv *internal.Conv, spTableName string, srcTableId st
 		spReferColIds = append(spReferColIds, srcKey.ReferColumnIds[i])
 	}
 	spKeyName := internal.ToSpannerForeignKey(conv, srcKey.Name)
+	spDeleteRule := internal.ToSpannerOnDelete(conv, srcTableId, srcKey.OnDelete)
+	spUpdateRule := internal.ToSpannerOnUpdate(conv, srcTableId, srcKey.OnUpdate)
 
 	spKey := ddl.Foreignkey{
 		Name:           spKeyName,
@@ -275,6 +277,8 @@ func CvtForeignKeysHelper(conv *internal.Conv, spTableName string, srcTableId st
 		ReferTableId:   srcKey.ReferTableId,
 		ReferColumnIds: spReferColIds,
 		Id:             srcKey.Id,
+		OnDelete:       spDeleteRule,
+		OnUpdate:       spUpdateRule,
 	}
 	return spKey, nil
 }

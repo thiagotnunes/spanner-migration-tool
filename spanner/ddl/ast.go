@@ -279,6 +279,8 @@ type Foreignkey struct {
 	ReferTableId   string
 	ReferColumnIds []string
 	Id             string
+	OnDelete       string
+	OnUpdate       string
 }
 
 // PrintForeignKey unparses the foreign keys.
@@ -292,7 +294,11 @@ func (k Foreignkey) PrintForeignKey(c Config) string {
 	if k.Name != "" {
 		s = fmt.Sprintf("CONSTRAINT %s ", c.quote(k.Name))
 	}
-	return s + fmt.Sprintf("FOREIGN KEY (%s) REFERENCES %s (%s)", strings.Join(cols, ", "), c.quote(k.ReferTableId), strings.Join(referCols, ", "))
+	s = s + fmt.Sprintf("FOREIGN KEY (%s) REFERENCES %s (%s)", strings.Join(cols, ", "), c.quote(k.ReferTableId), strings.Join(referCols, ", "))
+	if k.OnDelete != "" {
+		s = s + fmt.Sprintf(" ON DELETE %s", k.OnDelete)
+	}
+	return s
 }
 
 // CreateTable encodes the following DDL definition:
@@ -465,7 +471,11 @@ func (k Foreignkey) PrintForeignKeyAlterTable(spannerSchema TableSchema, c Confi
 	if k.Name != "" {
 		s = fmt.Sprintf("CONSTRAINT %s ", c.quote(k.Name))
 	}
-	return fmt.Sprintf("ALTER TABLE %s ADD %sFOREIGN KEY (%s) REFERENCES %s (%s)", c.quote(spannerSchema[tableId].Name), s, strings.Join(cols, ", "), c.quote(spannerSchema[k.ReferTableId].Name), strings.Join(referCols, ", "))
+	s = fmt.Sprintf("ALTER TABLE %s ADD %sFOREIGN KEY (%s) REFERENCES %s (%s)", c.quote(spannerSchema[tableId].Name), s, strings.Join(cols, ", "), c.quote(spannerSchema[k.ReferTableId].Name), strings.Join(referCols, ", "))
+	if k.OnDelete != "" {
+		s = s + fmt.Sprintf(" ON DELETE %s", k.OnDelete)
+	}
+	return s
 }
 
 // TableSchema stores a map of table names and Tables.

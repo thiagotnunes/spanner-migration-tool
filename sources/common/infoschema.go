@@ -54,10 +54,12 @@ type SchemaAndName struct {
 
 // FkConstraint contains foreign key constraints
 type FkConstraint struct {
-	Name    string
-	Table   string
-	Refcols []string
-	Cols    []string
+	Name     string
+	Table    string
+	Refcols  []string
+	Cols     []string
+	OnDelete string
+	OnUpdate string
 }
 
 type InfoSchemaInterface interface {
