@@ -77,11 +77,11 @@ func TestGoldens(t *testing.T) {
 				config := ddl.Config{Comments: false, ProtectIds: true, Tables: true, ForeignKeys: true}
 
 				config.SpDialect = constants.DIALECT_GOOGLESQL
-				actual := ddl.GetDDL(config, conv.SpSchema, conv.SpSequences)
+				actual := ddl.GetDDL(config, conv.SpNamedSchemas, conv.SpSchema, conv.SpSequences)
 				assert.Equal(t, testCase.ExpectedGSQLSchema, formatDdl(actual))
 
 				config.SpDialect = constants.DIALECT_POSTGRESQL
-				actual = ddl.GetDDL(config, conv.SpSchema, conv.SpSequences)
+				actual = ddl.GetDDL(config, conv.SpNamedSchemas, conv.SpSchema, conv.SpSequences)
 				assert.Equal(t, testCase.ExpectedPSQLSchema, formatDdl(actual))
 			}
 		}
