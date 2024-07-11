@@ -543,7 +543,7 @@ func GetDDL(c Config, namedSchemas NamedSchemas, tableSchema TableSchema, sequen
 
 	if c.NamedSchemas {
 		for _, namedSchema := range namedSchemas {
-			ddl = append(ddl, namedSchema.PrintNamedSchema())
+			ddl = append(ddl, namedSchema.PrintNamedSchema(c))
 		}
 	}
 
@@ -665,6 +665,12 @@ type CreateNamedSchema struct {
 	Name string
 }
 
-func (ns CreateNamedSchema) PrintNamedSchema() string {
-	return fmt.Sprintf("CREATE SCHEMA %s", ns.Name)
+func (ns CreateNamedSchema) PrintNamedSchema(config Config) string {
+	var name string
+	if config.ProtectIds {
+		name = config.quote(ns.Name)
+	} else {
+		name = ns.Name
+	}
+	return fmt.Sprintf("CREATE SCHEMA %s", name)
 }

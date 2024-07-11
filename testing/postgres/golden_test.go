@@ -74,7 +74,7 @@ func TestGoldens(t *testing.T) {
 				if err != nil {
 					t.Fatalf("error when converting schema to spanner ddl %s: %s", testCase.InputSchema, err)
 				}
-				config := ddl.Config{Comments: false, ProtectIds: true, Tables: true, ForeignKeys: true}
+				config := ddl.Config{Comments: false, ProtectIds: true, NamedSchemas: true, Tables: true, ForeignKeys: true}
 
 				config.SpDialect = constants.DIALECT_GOOGLESQL
 				actual := ddl.GetDDL(config, conv.SpNamedSchemas, conv.SpSchema, conv.SpSequences)

@@ -1,0 +1,6 @@
+CREATE SCHEMA custom_schema
+--
+CREATE SCHEMA `custom_schema`
+--
+CREATE SCHEMA custom_schema
+==
