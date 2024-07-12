@@ -24,6 +24,26 @@ import (
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/spanner/ddl"
 )
 
+func GetSpannerSchema(conv *Conv, tableId string) (string, error) {
+	if tableId == "" {
+		return "", fmt.Errorf("bad parameter: table-id string is empty when retrieving schema")
+	}
+
+	if sp, found := conv.SpSchema[tableId]; found {
+		return sp.Schema, nil
+	}
+	srcSchemaName := conv.SrcSchema[tableId].Schema
+	if srcSchemaName == "" {
+		return "", nil
+	}
+	spSchemaName, _ := FixName(srcSchemaName)
+	if spSchemaName != srcSchemaName {
+		VerbosePrintf("Mapping source DB schema %s to Spanner schema %s\n", srcSchemaName, spSchemaName)
+		logger.Log.Debug(fmt.Sprintf("Mapping source DB schema %s to Spanner schema %s\n", srcSchemaName, spSchemaName))
+	}
+	return spSchemaName, nil
+}
+
 // GetSpannerTable maps a source DB table name into a legal Spanner table
 // name. Note that source DB column names can be essentially any string, but
 // Spanner column names must use a limited character set. This means that

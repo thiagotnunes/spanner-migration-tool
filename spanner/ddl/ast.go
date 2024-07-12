@@ -305,6 +305,7 @@ func (k Foreignkey) PrintForeignKey(c Config) string {
 //
 //	create_table: CREATE TABLE table_name ([column_def, ...] ) primary_key [, cluster]
 type CreateTable struct {
+	Schema        string
 	Name          string
 	ColIds        []string // Provides names and order of columns
 	ShardIdColumn string

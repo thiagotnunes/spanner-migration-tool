@@ -384,6 +384,7 @@ func TestProcessData_MultiCol(t *testing.T) {
 	expectedSchema := map[string]ddl.CreateTable{
 		"test": ddl.CreateTable{
 			Name:   "test",
+			Schema: "test",
 			ColIds: []string{"a", "b", "c", "synth_id"},
 			ColDefs: map[string]ddl.ColumnDef{
 				"a":        ddl.ColumnDef{Name: "a", T: ddl.Type{Name: ddl.String, Len: ddl.MaxLength}, NotNull: true},

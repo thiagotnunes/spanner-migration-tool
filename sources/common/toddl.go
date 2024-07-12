@@ -80,6 +80,11 @@ func (ss *SchemaToSpannerImpl) SchemaToSpannerDDL(conv *internal.Conv, toddl ToD
 }
 
 func (ss *SchemaToSpannerImpl) SchemaToSpannerDDLHelper(conv *internal.Conv, toddl ToDdl, srcTable schema.Table, isRestore bool) error {
+	spSchemaName, err := internal.GetSpannerSchema(conv, srcTable.Id)
+	if err != nil {
+		conv.Unexpected(fmt.Sprintf("Couldn't map source schema %s to Spanner: %s", srcTable.Schema, err))
+		return err
+	}
 	spTableName, err := internal.GetSpannerTable(conv, srcTable.Id)
 	if err != nil {
 		conv.Unexpected(fmt.Sprintf("Couldn't map source table %s to Spanner: %s", srcTable.Name, err))
@@ -170,6 +175,7 @@ func (ss *SchemaToSpannerImpl) SchemaToSpannerDDLHelper(conv *internal.Conv, tod
 	}
 	comment := "Spanner schema for source table " + quoteIfNeeded(srcTable.Name)
 	conv.SpSchema[srcTable.Id] = ddl.CreateTable{
+		Schema:      spSchemaName,
 		Name:        spTableName,
 		ColIds:      spColIds,
 		ColDefs:     spColDef,

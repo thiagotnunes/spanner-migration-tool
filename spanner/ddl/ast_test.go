@@ -129,7 +129,9 @@ func TestPrintPkOrIndexKey(t *testing.T) {
 }
 
 func TestPrintNamedSchema(t *testing.T) {
-	assert.Equal(t, "CREATE SCHEMA custom_schema", CreateNamedSchema{Name: "custom_schema"}.PrintNamedSchema())
+	assert.Equal(t,
+		"CREATE SCHEMA custom_schema",
+		CreateNamedSchema{Name: "custom_schema"}.PrintNamedSchema(Config{NamedSchemas: true}))
 }
 
 func TestPrintCreateTable(t *testing.T) {
@@ -138,6 +140,7 @@ func TestPrintCreateTable(t *testing.T) {
 	cds["col2"] = ColumnDef{Name: "col2", T: Type{Name: String, Len: MaxLength}, NotNull: false}
 	cds["col3"] = ColumnDef{Name: "col3", T: Type{Name: Bytes, Len: int64(42)}, NotNull: false}
 	t1 := CreateTable{
+		"myschema",
 		"mytable",
 		[]string{"col1", "col2", "col3"},
 		"",
@@ -150,6 +153,7 @@ func TestPrintCreateTable(t *testing.T) {
 		"1",
 	}
 	t2 := CreateTable{
+		"",
 		"mytable",
 		[]string{"col1", "col2", "col3"},
 		"",
@@ -210,6 +214,7 @@ func TestPrintCreateTablePG(t *testing.T) {
 	cds["col2"] = ColumnDef{Name: "col2", T: Type{Name: String, Len: MaxLength}, NotNull: false}
 	cds["col3"] = ColumnDef{Name: "col3", T: Type{Name: Bytes, Len: int64(42)}, NotNull: false}
 	t1 := CreateTable{
+		"myschema",
 		"mytable",
 		[]string{"col1", "col2", "col3"},
 		"",
@@ -222,6 +227,7 @@ func TestPrintCreateTablePG(t *testing.T) {
 		"1",
 	}
 	t2 := CreateTable{
+		"",
 		"mytable",
 		[]string{"col1", "col2", "col3"},
 		"",
