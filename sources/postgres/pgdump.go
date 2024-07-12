@@ -336,6 +336,7 @@ func processCreateStmt(conv *internal.Conv, n *pg_query.CreateStmt) {
 		logStmtError(conv, n, fmt.Errorf("relation is nil"))
 		return
 	}
+	schemaName := getSchemaName(n.Relation)
 	table, err := getTableName(conv, n.Relation)
 	if err != nil {
 		logStmtError(conv, n, fmt.Errorf("can't get table name: %w", err))
@@ -380,6 +381,7 @@ func processCreateStmt(conv *internal.Conv, n *pg_query.CreateStmt) {
 	conv.SrcSchema[tableId] = schema.Table{
 		Id:           tableId,
 		Name:         table,
+		Schema:       schemaName,
 		ColIds:       colIds,
 		ColNameIdMap: colNameIdMap,
 		ColDefs:      colDef,
@@ -565,12 +567,18 @@ func getTypeID(nodes []*pg_query.Node) (string, error) {
 	return strings.Join(ids, "."), nil
 }
 
+func getSchemaName(n *pg_query.RangeVar) string {
+	if n.Schemaname != "" && n.Schemaname != "public" { // Don't include "public".
+		return n.Schemaname
+	}
+	return ""
+}
+
 // getTableName extracts the table name from RangeVar n, and returns
 // the raw extracted name (the PostgreSQL table name).
 func getTableName(conv *internal.Conv, n *pg_query.RangeVar) (string, error) {
 	// RangeVar is used to represent table names. It consists of three components:
 	//  Catalogname: database name; either not specified or the current database
-	//  Schemaname: schemas are PostgreSql namepaces; often unspecified; defaults to "public"
 	//  Relname: name of the table
 	// We build a table name from these three components as follows:
 	// a) nil components are dropped.
@@ -582,9 +590,6 @@ func getTableName(conv *internal.Conv, n *pg_query.RangeVar) (string, error) {
 	var l []string
 	if n.Catalogname != "" {
 		l = append(l, n.Catalogname)
-	}
-	if n.Schemaname != "" && n.Schemaname != "public" { // Don't include "public".
-		l = append(l, n.Schemaname)
 	}
 	if n.Relname == "" {
 		return "", fmt.Errorf("relname is empty: can't build table name")

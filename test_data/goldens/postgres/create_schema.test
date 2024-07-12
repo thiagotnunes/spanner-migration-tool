@@ -4,3 +4,22 @@ CREATE SCHEMA `custom_schema`
 --
 CREATE SCHEMA custom_schema
 ==
+CREATE SCHEMA custom_schema;
+CREATE TABLE custom_schema.custom_table (
+    id bigint PRIMARY KEY,
+    col text
+)
+--
+CREATE SCHEMA `custom_schema`
+CREATE TABLE `custom_schema.custom_table` (
+    `id` INT64 NOT NULL ,
+    `col` STRING(MAX),
+) PRIMARY KEY (`id`)
+--
+CREATE SCHEMA custom_schema
+CREATE TABLE custom_schema.custom_table (
+    id INT8 NOT NULL ,
+    col VARCHAR(2621440),
+    PRIMARY KEY (id)
+)
+==

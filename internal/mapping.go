@@ -67,6 +67,11 @@ func GetSpannerTable(conv *Conv, tableId string) (string, error) {
 	}
 	srcTableName := conv.SrcSchema[tableId].Name
 	spTableName := getSpannerValidName(conv, srcTableName)
+	if srcSchemaName := conv.SrcSchema[tableId].Schema; srcSchemaName != "" {
+		spSchemaName := getSpannerValidName(conv, srcSchemaName)
+		spTableName = fmt.Sprintf("%s.%s", spSchemaName, spTableName)
+	}
+
 	if spTableName != srcTableName {
 		VerbosePrintf("Mapping source DB table %s to Spanner table %s\n", srcTableName, spTableName)
 		logger.Log.Debug(fmt.Sprintf("Mapping source DB table %s to Spanner table %s\n", srcTableName, spTableName))
