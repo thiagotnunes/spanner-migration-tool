@@ -576,8 +576,8 @@ func TestSetRowStats(t *testing.T) {
 	conv.SetDataMode()
 	commonInfoSchema := common.InfoSchemaImpl{}
 	commonInfoSchema.SetRowStats(conv, InfoSchemaImpl{db, "migration-project-id", profiles.SourceProfile{}, profiles.TargetProfile{}, newFalsePtr()})
-	assert.Equal(t, int64(5), conv.Stats.Rows["test1"])
-	assert.Equal(t, int64(142), conv.Stats.Rows["test2"])
+	assert.Equal(t, int64(5), conv.Stats.Rows["public.test1"])
+	assert.Equal(t, int64(142), conv.Stats.Rows["public.test2"])
 	assert.Equal(t, int64(0), conv.Unexpecteds())
 }
 

@@ -314,7 +314,7 @@ func (isi InfoSchemaImpl) GetForeignKeys(conv *internal.Conv, table common.Schem
 			fKeys[fKeyName] = fk
 			continue
 		}
-		fKeys[fKeyName] = common.FkConstraint{Name: fKeyName, Table: isi.GetTableName(table.Schema, refTable), Refcols: []string{refCol}, Cols: []string{col}}
+		fKeys[fKeyName] = common.FkConstraint{Name: fKeyName, Table: fmt.Sprintf("%s.%s", table.Schema, refTable), Refcols: []string{refCol}, Cols: []string{col}}
 		keyNames = append(keyNames, fKeyName)
 	}
 	sort.Strings(keyNames)

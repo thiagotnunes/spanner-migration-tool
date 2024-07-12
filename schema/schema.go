@@ -73,6 +73,7 @@ type ForeignKey struct {
 	ColIds           []string
 	ColumnNames      []string `json:"-"`
 	ReferTableId     string
+	ReferTableSchema string   `json:"-"`
 	ReferTableName   string   `json:"-"`
 	ReferColumnIds   []string // len(ReferColumnIds) must be same as len(ColIds)
 	ReferColumnNames []string `json:"-"`

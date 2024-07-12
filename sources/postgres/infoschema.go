@@ -431,7 +431,6 @@ func (isi InfoSchemaImpl) GetForeignKeys(conv *internal.Conv, table common.Schem
 			conv.Unexpected(fmt.Sprintf("Can't scan: %v", err))
 			continue
 		}
-		tableName := isi.GetTableName(refTable.Schema, refTable.Name)
 		if _, found := fKeys[fKeyName]; found {
 			fk := fKeys[fKeyName]
 			fk.Cols = append(fk.Cols, col)
@@ -441,7 +440,7 @@ func (isi InfoSchemaImpl) GetForeignKeys(conv *internal.Conv, table common.Schem
 			fk.OnUpdate = onUpdate
 			continue
 		}
-		fKeys[fKeyName] = common.FkConstraint{Name: fKeyName, Table: tableName, Refcols: []string{refCol}, Cols: []string{col}, OnDelete: onDelete, OnUpdate: onUpdate}
+		fKeys[fKeyName] = common.FkConstraint{Name: fKeyName, TableSchema: refTable.Schema, Table: refTable.Name, Refcols: []string{refCol}, Cols: []string{col}, OnDelete: onDelete, OnUpdate: onUpdate}
 		keyNames = append(keyNames, fKeyName)
 	}
 

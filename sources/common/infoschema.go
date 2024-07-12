@@ -31,7 +31,6 @@ const DefaultWorkers = 20 // Default to 20 - observed diminishing returns above 
 // InfoSchema contains database information.
 type InfoSchema interface {
 	GetToDdl() ToDdl
-	GetTableName(schema string, tableName string) string
 	GetSchemas() ([]schema.NamedSchema, error)
 	GetTables() ([]SchemaAndName, error)
 	GetColumns(conv *internal.Conv, table SchemaAndName, constraints map[string][]string, primaryKeys []string) (map[string]schema.Column, []string, error)
@@ -54,12 +53,13 @@ type SchemaAndName struct {
 
 // FkConstraint contains foreign key constraints
 type FkConstraint struct {
-	Name     string
-	Table    string
-	Refcols  []string
-	Cols     []string
-	OnDelete string
-	OnUpdate string
+	Name        string
+	TableSchema string
+	Table       string
+	Refcols     []string
+	Cols        []string
+	OnDelete    string
+	OnUpdate    string
 }
 
 type InfoSchemaInterface interface {
@@ -181,7 +181,12 @@ func (is *InfoSchemaImpl) SetRowStats(conv *internal.Conv, infoSchema InfoSchema
 		return
 	}
 	for _, t := range tables {
-		tableName := infoSchema.GetTableName(t.Schema, t.Name)
+		var tableName string
+		if t.Schema != "" {
+			tableName = fmt.Sprintf("%s.%s", t.Schema, t.Name)
+		} else {
+			tableName = t.Name
+		}
 		count, err := infoSchema.GetRowCount(t)
 		if err != nil {
 			conv.Unexpected(fmt.Sprintf("Couldn't get number of rows for table %s", tableName))
@@ -219,14 +224,13 @@ func (is *InfoSchemaImpl) processTable(conv *internal.Conv, table SchemaAndName,
 		return t, fmt.Errorf("couldn't get indexes for table %s.%s: %s", table.Schema, table.Name, err)
 	}
 
-	name := infoSchema.GetTableName(table.Schema, table.Name)
 	var schemaPKeys []schema.Key
 	for _, k := range primaryKeys {
 		schemaPKeys = append(schemaPKeys, schema.Key{ColId: colNameIdMap[k]})
 	}
 	t = schema.Table{
 		Id:           tblId,
-		Name:         name,
+		Name:         table.Name,
 		Schema:       table.Schema,
 		ColIds:       colIds,
 		ColNameIdMap: colNameIdMap,
