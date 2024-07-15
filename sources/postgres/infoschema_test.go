@@ -248,7 +248,7 @@ func TestProcessSchema(t *testing.T) {
 	err := processSchema.ProcessSchema(conv, InfoSchemaImpl{db, "migration-project-id", profiles.SourceProfile{}, profiles.TargetProfile{}, newFalsePtr()}, 1, internal.AdditionalSchemaAttributes{}, &common.SchemaToSpannerImpl{}, &common.UtilsOrderImpl{}, &common.InfoSchemaImpl{})
 	assert.Nil(t, err)
 	expectedSchema := map[string]ddl.CreateTable{
-		"user": ddl.CreateTable{
+		"public.user": ddl.CreateTable{
 			Name:   "user",
 			ColIds: []string{"user_id", "name", "ref"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -258,7 +258,7 @@ func TestProcessSchema(t *testing.T) {
 			},
 			PrimaryKeys: []ddl.IndexKey{ddl.IndexKey{ColId: "user_id", Order: 1}},
 			ForeignKeys: []ddl.Foreignkey{ddl.Foreignkey{Name: "fk_test", ColIds: []string{"ref"}, ReferTableId: "test", ReferColumnIds: []string{"id"}, OnDelete: constants.NO_ACTION, OnUpdate: constants.NO_ACTION}}},
-		"cart": ddl.CreateTable{
+		"public.cart": ddl.CreateTable{
 			Name:   "cart",
 			ColIds: []string{"productid", "userid", "quantity"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -272,7 +272,7 @@ func TestProcessSchema(t *testing.T) {
 			Indexes: []ddl.CreateIndex{ddl.CreateIndex{Name: "index1", TableId: "cart", Unique: false, Keys: []ddl.IndexKey{ddl.IndexKey{ColId: "userid", Desc: false, Order: 1}}},
 				ddl.CreateIndex{Name: "index2", TableId: "cart", Unique: true, Keys: []ddl.IndexKey{ddl.IndexKey{ColId: "userid", Desc: false, Order: 1}, ddl.IndexKey{ColId: "productid", Desc: true, Order: 2}}},
 				ddl.CreateIndex{Name: "index3", TableId: "cart", Unique: true, Keys: []ddl.IndexKey{ddl.IndexKey{ColId: "productid", Desc: true, Order: 1}, ddl.IndexKey{ColId: "userid", Desc: false, Order: 2}}}}},
-		"product": ddl.CreateTable{
+		"public.product": ddl.CreateTable{
 			Name:   "product",
 			ColIds: []string{"product_id", "product_name"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -280,7 +280,7 @@ func TestProcessSchema(t *testing.T) {
 				"product_name": ddl.ColumnDef{Name: "product_name", T: ddl.Type{Name: ddl.String, Len: ddl.MaxLength}, NotNull: true},
 			},
 			PrimaryKeys: []ddl.IndexKey{ddl.IndexKey{ColId: "product_id", Order: 1}}},
-		"test": ddl.CreateTable{
+		"public.test": ddl.CreateTable{
 			Name:   "test",
 			ColIds: []string{"id", "aint", "atext", "b", "bs", "by", "c", "c_8", "d", "f8", "f4", "i8", "i4", "i2", "num", "s", "ts", "tz", "txt", "vc", "vc6"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -308,7 +308,7 @@ func TestProcessSchema(t *testing.T) {
 			},
 			PrimaryKeys: []ddl.IndexKey{ddl.IndexKey{ColId: "id", Order: 1}},
 			ForeignKeys: []ddl.Foreignkey{ddl.Foreignkey{Name: "fk_test4", ColIds: []string{"id", "txt"}, ReferTableId: "test_ref", ReferColumnIds: []string{"ref_id", "ref_txt"}, OnDelete: constants.CASCADE, OnUpdate: constants.NO_ACTION}}},
-		"test_ref": ddl.CreateTable{
+		"public.test_ref": ddl.CreateTable{
 			Name:   "test_ref",
 			ColIds: []string{"ref_id", "ref_txt", "abc"},
 			ColDefs: map[string]ddl.ColumnDef{

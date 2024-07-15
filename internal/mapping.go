@@ -68,7 +68,7 @@ func GetSpannerTable(conv *Conv, tableId string) (string, error) {
 	srcTableName := conv.SrcSchema[tableId].Name
 	spTableName := getSpannerValidName(conv, srcTableName)
 	if srcSchemaName := conv.SrcSchema[tableId].Schema; srcSchemaName != "" {
-		spSchemaName := getSpannerValidName(conv, srcSchemaName)
+		spSchemaName, _ := FixName(srcSchemaName)
 		spTableName = fmt.Sprintf("%s.%s", spSchemaName, spTableName)
 	}
 
