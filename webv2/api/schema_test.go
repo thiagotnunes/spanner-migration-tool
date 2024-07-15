@@ -2049,7 +2049,7 @@ func TestRemoveParentTable(t *testing.T) {
 		tableId          string
 		statusCode       int64
 		conv             *internal.Conv
-		expectedSpSchema ddl.TableSchema
+		expectedSpSchema ddl.Schema
 	}{
 		{
 			name:       "Remove interleaving with valid table id",
@@ -2113,7 +2113,7 @@ func TestRemoveParentTable(t *testing.T) {
 				},
 				UsedNames: map[string]bool{"table1": true, "table2": true},
 			},
-			expectedSpSchema: ddl.TableSchema{
+			expectedSpSchema: ddl.Schema{
 				"t1": {
 					Name:   "table1",
 					ColIds: []string{"c1", "c2", "c3"},
@@ -2201,7 +2201,7 @@ func TestRemoveParentTable(t *testing.T) {
 				},
 				UsedNames: map[string]bool{"table1": true, "table2": true},
 			},
-			expectedSpSchema: ddl.TableSchema{},
+			expectedSpSchema: ddl.Schema{},
 		},
 	}
 

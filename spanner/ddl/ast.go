@@ -319,7 +319,7 @@ type CreateTable struct {
 }
 
 // PrintCreateTable unparses a CREATE TABLE statement.
-func (ct CreateTable) PrintCreateTable(spSchema TableSchema, config Config) string {
+func (ct CreateTable) PrintCreateTable(spSchema Schema, config Config) string {
 	var col []string
 	var colComment []string
 	var keys []string
@@ -462,7 +462,7 @@ func isStoredColumnKeyPartOfPrimaryKey(ct CreateTable, colId string) bool {
 }
 
 // PrintForeignKeyAlterTable unparses the foreign keys using ALTER TABLE.
-func (k Foreignkey) PrintForeignKeyAlterTable(spannerSchema TableSchema, c Config, tableId string) string {
+func (k Foreignkey) PrintForeignKeyAlterTable(spannerSchema Schema, c Config, tableId string) string {
 	var cols, referCols []string
 	for i, col := range k.ColIds {
 		cols = append(cols, spannerSchema[tableId].ColDefs[col].Name)
@@ -479,11 +479,11 @@ func (k Foreignkey) PrintForeignKeyAlterTable(spannerSchema TableSchema, c Confi
 	return s
 }
 
-// TableSchema stores a map of table names and Tables.
-type TableSchema map[string]CreateTable
+// Schema stores a map of table names and Tables.
+type Schema map[string]CreateTable
 
 // NewTableSchema creates a new Schema object.
-func NewTableSchema() TableSchema {
+func NewTableSchema() Schema {
 	return make(map[string]CreateTable)
 }
 
@@ -492,7 +492,7 @@ func NewTableSchema() TableSchema {
 //
 // TODO: Move this method to mapping.go and preserve the table names in sorted
 // order in conv so that we don't need to order the table names multiple times.
-func GetSortedTableIdsBySpName(s TableSchema) []string {
+func GetSortedTableIdsBySpName(s Schema) []string {
 
 	var tableNames, sortedTableNames, sortedTableIds []string
 	tableNameIdMap := map[string]string{}
@@ -539,7 +539,7 @@ func GetSortedTableIdsBySpName(s TableSchema) []string {
 // Tables are printed in alphabetical order with one exception: interleaved
 // tables are potentially out of order since they must appear after the
 // definition of their parent table.
-func GetDDL(c Config, namedSchemas NamedSchemas, tableSchema TableSchema, sequenceSchema map[string]Sequence) []string {
+func GetDDL(c Config, namedSchemas NamedSchemas, tableSchema Schema, sequenceSchema map[string]Sequence) []string {
 	var ddl []string
 
 	if c.NamedSchemas {
@@ -584,7 +584,7 @@ func GetDDL(c Config, namedSchemas NamedSchemas, tableSchema TableSchema, sequen
 }
 
 // CheckInterleaved checks if schema contains interleaved tables.
-func (s TableSchema) CheckInterleaved() bool {
+func (s Schema) CheckInterleaved() bool {
 	for _, table := range s {
 		if table.ParentId != "" {
 			return true

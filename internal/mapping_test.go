@@ -515,10 +515,10 @@ func TestGetSpannerID(t *testing.T) {
 
 func TestResolveRefs(t *testing.T) {
 	basicTests := []struct {
-		name             string          // Name of test.
-		spSchema         ddl.TableSchema // Spanner schema.
-		expectedSpSchema ddl.TableSchema // Expected Spanner schema.
-		unexpecteds      int64           // Expected unexpected conditions
+		name             string     // Name of test.
+		spSchema         ddl.Schema // Spanner schema.
+		expectedSpSchema ddl.Schema // Expected Spanner schema.
+		unexpecteds      int64      // Expected unexpected conditions
 	}{
 		{
 			name: "Refer column Id not found",

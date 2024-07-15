@@ -707,7 +707,7 @@ func TestSpannerAccessorImpl_UpdateDDLForeignKey(t *testing.T) {
 		acm           spanneradmin.AdminClientMock
 		dialect       string
 		migrationType string
-		spSchema      ddl.TableSchema
+		spSchema      ddl.Schema
 	}{
 		{
 			name: "Update DDL ForeignKey successful pg dataflow",
