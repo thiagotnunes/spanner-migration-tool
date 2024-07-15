@@ -292,7 +292,7 @@ type TableDetails struct {
 // MakeConv returns a default-configured Conv.
 func MakeConv() *Conv {
 	return &Conv{
-		SpSchema:       ddl.NewTableSchema(),
+		SpSchema:       ddl.NewSchema(),
 		SyntheticPKeys: make(map[string]SyntheticPKey),
 		SrcSchema:      make(map[string]schema.Table),
 		SchemaIssues:   make(map[string]TableIssues),

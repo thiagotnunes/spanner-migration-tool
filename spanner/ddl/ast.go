@@ -482,8 +482,8 @@ func (k Foreignkey) PrintForeignKeyAlterTable(spannerSchema Schema, c Config, ta
 // Schema stores a map of table names and Tables.
 type Schema map[string]CreateTable
 
-// NewTableSchema creates a new Schema object.
-func NewTableSchema() Schema {
+// NewSchema creates a new Schema object.
+func NewSchema() Schema {
 	return make(map[string]CreateTable)
 }
 

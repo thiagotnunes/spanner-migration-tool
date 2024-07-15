@@ -396,8 +396,9 @@ func TestProcessPgDump(t *testing.T) {
 			name:  "Create table with pg schema",
 			input: "CREATE TABLE myschema.test (a text PRIMARY KEY, b text);\n",
 			expectedSchema: map[string]ddl.CreateTable{
-				"myschema_test": ddl.CreateTable{
-					Name:   "myschema_test",
+				"myschema.test": ddl.CreateTable{
+					Schema: "myschema",
+					Name:   "test",
 					ColIds: []string{"a", "b"},
 					ColDefs: map[string]ddl.ColumnDef{
 						"a": ddl.ColumnDef{Name: "a", T: ddl.Type{Name: ddl.String, Len: ddl.MaxLength}, NotNull: true},
@@ -1093,8 +1094,9 @@ func TestProcessPgDumpPGTarget(t *testing.T) {
 			name:  "Create table with pg schema",
 			input: "CREATE TABLE myschema.test (a text PRIMARY KEY, b text);\n",
 			expectedSchema: map[string]ddl.CreateTable{
-				"myschema_test": ddl.CreateTable{
-					Name:   "myschema_test",
+				"myschema.test": ddl.CreateTable{
+					Schema: "myschema",
+					Name:   "test",
 					ColIds: []string{"a", "b"},
 					ColDefs: map[string]ddl.ColumnDef{
 						"a": ddl.ColumnDef{Name: "a", T: ddl.Type{Name: ddl.String, Len: ddl.MaxLength}, NotNull: true},
