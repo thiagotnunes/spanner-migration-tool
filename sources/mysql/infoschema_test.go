@@ -382,7 +382,7 @@ func TestProcessData_MultiCol(t *testing.T) {
 	err := processSchema.ProcessSchema(conv, isi, 1, internal.AdditionalSchemaAttributes{}, &common.SchemaToSpannerImpl{}, &common.UtilsOrderImpl{}, &common.InfoSchemaImpl{})
 	assert.Nil(t, err)
 	expectedSchema := map[string]ddl.CreateTable{
-		"test": ddl.CreateTable{
+		"test.test": ddl.CreateTable{
 			Name:   "test",
 			Schema: "test",
 			ColIds: []string{"a", "b", "c", "synth_id"},
@@ -403,7 +403,7 @@ func TestProcessData_MultiCol(t *testing.T) {
 	expectedIssues := internal.TableIssues{
 		ColumnLevelIssues: columnLevelIssues,
 	}
-	tableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "test")
+	tableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "test.test")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, expectedIssues, conv.SchemaIssues[tableId])
 	assert.Equal(t, int64(0), conv.Unexpecteds())
@@ -416,8 +416,8 @@ func TestProcessData_MultiCol(t *testing.T) {
 	commonInfoSchema := common.InfoSchemaImpl{}
 	commonInfoSchema.ProcessData(conv, isi, internal.AdditionalDataAttributes{})
 	assert.Equal(t, []spannerData{
-		{table: "test", cols: []string{"a", "b", "synth_id"}, vals: []interface{}{"cat", float64(42.3), "0"}},
-		{table: "test", cols: []string{"a", "c", "synth_id"}, vals: []interface{}{"dog", int64(22), "-9223372036854775808"}}},
+		{table: "test.test", cols: []string{"a", "b", "synth_id"}, vals: []interface{}{"cat", float64(42.3), "0"}},
+		{table: "test.test", cols: []string{"a", "c", "synth_id"}, vals: []interface{}{"dog", int64(22), "-9223372036854775808"}}},
 		rows)
 	assert.Equal(t, int64(0), conv.Unexpecteds())
 }
@@ -472,7 +472,7 @@ func TestProcessSchema_Sharded(t *testing.T) {
 	err := processSchema.ProcessSchema(conv, isi, 1, internal.AdditionalSchemaAttributes{IsSharded: true}, &common.SchemaToSpannerImpl{}, &common.UtilsOrderImpl{}, &common.InfoSchemaImpl{})
 	assert.Nil(t, err)
 	expectedSchema := map[string]ddl.CreateTable{
-		"test": {
+		"test.test": {
 			Name:   "test",
 			ColIds: []string{"a", "b", "c", "synth_id"},
 			ColDefs: map[string]ddl.ColumnDef{
