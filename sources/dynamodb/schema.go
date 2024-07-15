@@ -65,6 +65,12 @@ func (isi InfoSchemaImpl) GetTableName(schema string, tableName string) string {
 	return *aws.String(tableName)
 }
 
+// GetSchemas return a list of schemas in the selected database.
+// This is currently only supported for PostgreSQL.
+func (isi InfoSchemaImpl) GetSchemas() ([]schema.NamedSchema, error) {
+	return []schema.NamedSchema{}, nil
+}
+
 func (isi InfoSchemaImpl) GetTables() ([]common.SchemaAndName, error) {
 	var tables []common.SchemaAndName
 	input := &dynamodb.ListTablesInput{}

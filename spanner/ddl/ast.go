@@ -184,12 +184,13 @@ type ColumnDef struct {
 
 // Config controls how AST nodes are printed (aka unparsed).
 type Config struct {
-	Comments    bool // If true, print comments.
-	ProtectIds  bool // If true, table and col names are quoted using backticks (avoids reserved-word issue).
-	Tables      bool // If true, print tables
-	ForeignKeys bool // If true, print foreign key constraints.
-	SpDialect   string
-	Source      string //SourceDB information for determining case-sensitivity handling for PGSQL
+	Comments     bool // If true, print comments.
+	ProtectIds   bool // If true, table and col names are quoted using backticks (avoids reserved-word issue).
+	NamedSchemas bool // If true, print named schemas
+	Tables       bool // If true, print tables
+	ForeignKeys  bool // If true, print foreign key constraints.
+	SpDialect    string
+	Source       string //SourceDB information for determining case-sensitivity handling for PGSQL
 }
 
 func isIdentifierReservedInPG(identifier string) bool {
@@ -304,6 +305,7 @@ func (k Foreignkey) PrintForeignKey(c Config) string {
 //
 //	create_table: CREATE TABLE table_name ([column_def, ...] ) primary_key [, cluster]
 type CreateTable struct {
+	Schema        string
 	Name          string
 	ColIds        []string // Provides names and order of columns
 	ShardIdColumn string
@@ -533,12 +535,18 @@ func GetSortedTableIdsBySpName(s Schema) []string {
 	return sortedTableIds
 }
 
-// GetDDL returns the string representation of Spanner schema represented by Schema struct.
+// GetDDL returns the string representation of Spanner schema represented by TableSchema struct.
 // Tables are printed in alphabetical order with one exception: interleaved
 // tables are potentially out of order since they must appear after the
 // definition of their parent table.
-func GetDDL(c Config, tableSchema Schema, sequenceSchema map[string]Sequence) []string {
+func GetDDL(c Config, namedSchemas NamedSchemas, tableSchema Schema, sequenceSchema map[string]Sequence) []string {
 	var ddl []string
+
+	if c.NamedSchemas {
+		for _, namedSchema := range namedSchemas {
+			ddl = append(ddl, namedSchema.PrintNamedSchema(c))
+		}
+	}
 
 	for _, seq := range sequenceSchema {
 		if c.SpDialect == constants.DIALECT_POSTGRESQL {
@@ -650,4 +658,20 @@ func (seq Sequence) PGPrintSequence() string {
 	}
 
 	return seqDDL
+}
+
+type NamedSchemas = map[string]CreateNamedSchema
+
+type CreateNamedSchema struct {
+	Name string
+}
+
+func (ns CreateNamedSchema) PrintNamedSchema(config Config) string {
+	var name string
+	if config.ProtectIds {
+		name = config.quote(ns.Name)
+	} else {
+		name = ns.Name
+	}
+	return fmt.Sprintf("CREATE SCHEMA %s", name)
 }

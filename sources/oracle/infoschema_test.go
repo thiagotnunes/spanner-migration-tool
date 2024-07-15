@@ -162,32 +162,32 @@ func TestProcessSchemaOracle(t *testing.T) {
 	err := processSchema.ProcessSchema(conv, InfoSchemaImpl{"test", db, "migration-project-id", profiles.SourceProfile{}, profiles.TargetProfile{}}, 1, internal.AdditionalSchemaAttributes{}, &common.SchemaToSpannerImpl{}, &common.UtilsOrderImpl{}, &common.InfoSchemaImpl{})
 	assert.Nil(t, err)
 	expectedSchema := map[string]ddl.CreateTable{
-		"USER": {
+		"test.USER": {
 			Name:        "USER",
 			ColIds:      []string{"USER_ID", "NAME", "REF"},
 			ColDefs:     map[string]ddl.ColumnDef{"USER_ID": {Name: "USER_ID", T: ddl.Type{Name: ddl.String, Len: ddl.MaxLength, IsArray: false}, NotNull: true}, "NAME": {Name: "NAME", T: ddl.Type{Name: ddl.String, Len: ddl.MaxLength, IsArray: false}, NotNull: true}, "REF": {Name: "REF", T: ddl.Type{Name: ddl.Numeric}}},
 			PrimaryKeys: []ddl.IndexKey{{ColId: "USER_ID", Order: 1}},
-			ForeignKeys: []ddl.Foreignkey{{Name: "fk_test", ColIds: []string{"REF"}, ReferTableId: "TEST", ReferColumnIds: []string{"ID"}}},
+			ForeignKeys: []ddl.Foreignkey{{Name: "fk_test", ColIds: []string{"REF"}, ReferTableId: "test.TEST", ReferColumnIds: []string{"ID"}}},
 			Indexes: []ddl.CreateIndex{{
 				Name:    "INDEX1_LAST",
-				TableId: "USER",
+				TableId: "test.USER",
 				Unique:  false,
 				Keys:    []ddl.IndexKey{{ColId: "NAME", Desc: true, Order: 1}},
 			}, {
 				Name:    "INDEX_TEST_2",
-				TableId: "USER",
+				TableId: "test.USER",
 				Unique:  false,
 				Keys:    []ddl.IndexKey{{ColId: "NAME", Desc: true, Order: 1}, {ColId: "USER_ID", Desc: true, Order: 2}},
 			}},
 		},
-		"TEST": {
+		"test.TEST": {
 			Name:   "TEST",
 			ColIds: []string{"ID"},
 			ColDefs: map[string]ddl.ColumnDef{
 				"ID": {Name: "ID", T: ddl.Type{Name: ddl.Numeric}, NotNull: true}},
 			PrimaryKeys: []ddl.IndexKey{{ColId: "ID", Order: 1}},
 		},
-		"TEST2": {
+		"test.TEST2": {
 			Name:   "TEST2",
 			ColIds: []string{"ID", "JSON", "REALJSON", "ARRAY_NUM", "ARRAY_FLOAT", "ARRAY_STRING", "ARRAY_DATE", "ARRAY_INT", "OBJECT"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -205,11 +205,11 @@ func TestProcessSchemaOracle(t *testing.T) {
 		},
 	}
 	internal.AssertSpSchema(conv, t, expectedSchema, stripSchemaComments(conv.SpSchema))
-	userTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "USER")
+	userTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "test.USER")
 	assert.Equal(t, nil, err)
-	testTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "TEST")
+	testTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "test.TEST")
 	assert.Equal(t, nil, err)
-	test2TableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "TEST2")
+	test2TableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "test.TEST2")
 	assert.Equal(t, nil, err)
 
 	assert.Equal(t, len(conv.SchemaIssues[userTableId].ColumnLevelIssues), 0)

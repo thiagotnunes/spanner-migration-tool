@@ -37,6 +37,17 @@ import (
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/streaming"
 )
 
+// System schemas which are intentionally not exported
+var IgnoredSchemas = map[string]bool{
+	"google_vacuum_mgmt": true,
+	"information_schema": true,
+	"postgres":           true,
+	"pg_catalog":         true,
+	"pg_temp_1":          true,
+	"pg_toast":           true,
+	"pg_toast_temp_1":    true,
+}
+
 // InfoSchemaImpl postgres specific implementation for InfoSchema.
 type InfoSchemaImpl struct {
 	Db                 *sql.DB
@@ -248,17 +259,32 @@ func (isi InfoSchemaImpl) GetRowCount(table common.SchemaAndName) (int64, error)
 	return 0, nil //Check if 0 is ok to return
 }
 
+// GetSchemas return a list of schemas in the selected database.
+// This is currently only supported for PostgreSQL.
+func (isi InfoSchemaImpl) GetSchemas() ([]schema.NamedSchema, error) {
+	q := "SELECT nspname FROM pg_catalog.pg_namespaces"
+	rows, err := isi.Db.Query(q)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't get schemas: %w", err)
+	}
+	defer rows.Close()
+	var name string
+	var namedSchemas []schema.NamedSchema
+	for rows.Next() {
+		rows.Scan(&name)
+		if !IgnoredSchemas[name] {
+			namedSchemas = append(namedSchemas, schema.NamedSchema{Name: name})
+		}
+	}
+	return namedSchemas, nil
+}
+
 // GetTables return list of tables in the selected database.
 // TODO: All of the queries to get tables and table data should be in
 // a single transaction to ensure we obtain a consistent snapshot of
 // schema information and table data (pg_dump does something
 // similar).
 func (isi InfoSchemaImpl) GetTables() ([]common.SchemaAndName, error) {
-	ignored := make(map[string]bool)
-	// Ignore all system tables: we just want to convert user tables.
-	for _, s := range []string{"information_schema", "postgres", "pg_catalog", "pg_temp_1", "pg_toast", "pg_toast_temp_1"} {
-		ignored[s] = true
-	}
 	q := "SELECT table_schema, table_name FROM information_schema.tables where table_type = 'BASE TABLE'"
 	rows, err := isi.Db.Query(q)
 	if err != nil {
@@ -269,7 +295,7 @@ func (isi InfoSchemaImpl) GetTables() ([]common.SchemaAndName, error) {
 	var tables []common.SchemaAndName
 	for rows.Next() {
 		rows.Scan(&tableSchema, &tableName)
-		if !ignored[tableSchema] {
+		if !IgnoredSchemas[tableSchema] {
 			tables = append(tables, common.SchemaAndName{Schema: tableSchema, Name: tableName})
 		}
 	}
@@ -405,7 +431,6 @@ func (isi InfoSchemaImpl) GetForeignKeys(conv *internal.Conv, table common.Schem
 			conv.Unexpected(fmt.Sprintf("Can't scan: %v", err))
 			continue
 		}
-		tableName := isi.GetTableName(refTable.Schema, refTable.Name)
 		if _, found := fKeys[fKeyName]; found {
 			fk := fKeys[fKeyName]
 			fk.Cols = append(fk.Cols, col)
@@ -415,7 +440,7 @@ func (isi InfoSchemaImpl) GetForeignKeys(conv *internal.Conv, table common.Schem
 			fk.OnUpdate = onUpdate
 			continue
 		}
-		fKeys[fKeyName] = common.FkConstraint{Name: fKeyName, Table: tableName, Refcols: []string{refCol}, Cols: []string{col}, OnDelete: onDelete, OnUpdate: onUpdate}
+		fKeys[fKeyName] = common.FkConstraint{Name: fKeyName, TableSchema: refTable.Schema, Table: refTable.Name, Refcols: []string{refCol}, Cols: []string{col}, OnDelete: onDelete, OnUpdate: onUpdate}
 		keyNames = append(keyNames, fKeyName)
 	}
 

@@ -47,6 +47,20 @@ type mockSpec struct {
 
 func TestProcessSchema(t *testing.T) {
 	ms := []mockSpec{
+		// db call to fetch schemas
+		{
+			query: "SELECT (.+) FROM pg_catalog.pg_namespace",
+			args:  []driver.Value{},
+			cols:  []string{"nspname"},
+			rows: [][]driver.Value{
+				{"pg_toast"},
+				{"pg_catalog"},
+				{"information_schema"},
+				{"public"},
+				{"google_vacuum_mgmt"},
+				{"custom_schema"},
+			},
+		},
 		{
 			query: "SELECT table_schema, table_name FROM information_schema.tables where table_type = 'BASE TABLE'",
 			cols:  []string{"table_schema", "table_name"},
@@ -234,7 +248,7 @@ func TestProcessSchema(t *testing.T) {
 	err := processSchema.ProcessSchema(conv, InfoSchemaImpl{db, "migration-project-id", profiles.SourceProfile{}, profiles.TargetProfile{}, newFalsePtr()}, 1, internal.AdditionalSchemaAttributes{}, &common.SchemaToSpannerImpl{}, &common.UtilsOrderImpl{}, &common.InfoSchemaImpl{})
 	assert.Nil(t, err)
 	expectedSchema := map[string]ddl.CreateTable{
-		"user": ddl.CreateTable{
+		"public.user": ddl.CreateTable{
 			Name:   "user",
 			ColIds: []string{"user_id", "name", "ref"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -243,8 +257,8 @@ func TestProcessSchema(t *testing.T) {
 				"ref":     ddl.ColumnDef{Name: "ref", T: ddl.Type{Name: ddl.Int64}},
 			},
 			PrimaryKeys: []ddl.IndexKey{ddl.IndexKey{ColId: "user_id", Order: 1}},
-			ForeignKeys: []ddl.Foreignkey{ddl.Foreignkey{Name: "fk_test", ColIds: []string{"ref"}, ReferTableId: "test", ReferColumnIds: []string{"id"}, OnDelete: constants.FK_NO_ACTION, OnUpdate: constants.FK_NO_ACTION}}},
-		"cart": ddl.CreateTable{
+			ForeignKeys: []ddl.Foreignkey{ddl.Foreignkey{Name: "fk_test", ColIds: []string{"ref"}, ReferTableId: "public.test", ReferColumnIds: []string{"id"}, OnDelete: constants.FK_NO_ACTION, OnUpdate: constants.FK_NO_ACTION}}},
+		"public.cart": ddl.CreateTable{
 			Name:   "cart",
 			ColIds: []string{"productid", "userid", "quantity"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -253,12 +267,12 @@ func TestProcessSchema(t *testing.T) {
 				"quantity":  ddl.ColumnDef{Name: "quantity", T: ddl.Type{Name: ddl.Int64}},
 			},
 			PrimaryKeys: []ddl.IndexKey{ddl.IndexKey{ColId: "productid", Order: 1}, ddl.IndexKey{ColId: "userid", Order: 2}},
-			ForeignKeys: []ddl.Foreignkey{ddl.Foreignkey{Name: "fk_test2", ColIds: []string{"productid"}, ReferTableId: "product", ReferColumnIds: []string{"product_id"}, OnDelete: constants.FK_NO_ACTION, OnUpdate: constants.FK_NO_ACTION},
-				ddl.Foreignkey{Name: "fk_test3", ColIds: []string{"userid"}, ReferTableId: "user", ReferColumnIds: []string{"user_id"}, OnDelete: constants.FK_NO_ACTION, OnUpdate: constants.FK_NO_ACTION}},
-			Indexes: []ddl.CreateIndex{ddl.CreateIndex{Name: "index1", TableId: "cart", Unique: false, Keys: []ddl.IndexKey{ddl.IndexKey{ColId: "userid", Desc: false, Order: 1}}},
-				ddl.CreateIndex{Name: "index2", TableId: "cart", Unique: true, Keys: []ddl.IndexKey{ddl.IndexKey{ColId: "userid", Desc: false, Order: 1}, ddl.IndexKey{ColId: "productid", Desc: true, Order: 2}}},
-				ddl.CreateIndex{Name: "index3", TableId: "cart", Unique: true, Keys: []ddl.IndexKey{ddl.IndexKey{ColId: "productid", Desc: true, Order: 1}, ddl.IndexKey{ColId: "userid", Desc: false, Order: 2}}}}},
-		"product": ddl.CreateTable{
+			ForeignKeys: []ddl.Foreignkey{ddl.Foreignkey{Name: "fk_test2", ColIds: []string{"productid"}, ReferTableId: "public.product", ReferColumnIds: []string{"product_id"}, OnDelete: constants.FK_NO_ACTION, OnUpdate: constants.FK_NO_ACTION},
+				ddl.Foreignkey{Name: "fk_test3", ColIds: []string{"userid"}, ReferTableId: "public.user", ReferColumnIds: []string{"user_id"}, OnDelete: constants.FK_NO_ACTION, OnUpdate: constants.FK_NO_ACTION}},
+			Indexes: []ddl.CreateIndex{ddl.CreateIndex{Name: "index1", TableId: "public.cart", Unique: false, Keys: []ddl.IndexKey{ddl.IndexKey{ColId: "userid", Desc: false, Order: 1}}},
+				ddl.CreateIndex{Name: "index2", TableId: "public.cart", Unique: true, Keys: []ddl.IndexKey{ddl.IndexKey{ColId: "userid", Desc: false, Order: 1}, ddl.IndexKey{ColId: "productid", Desc: true, Order: 2}}},
+				ddl.CreateIndex{Name: "index3", TableId: "public.cart", Unique: true, Keys: []ddl.IndexKey{ddl.IndexKey{ColId: "productid", Desc: true, Order: 1}, ddl.IndexKey{ColId: "userid", Desc: false, Order: 2}}}}},
+		"public.product": ddl.CreateTable{
 			Name:   "product",
 			ColIds: []string{"product_id", "product_name"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -266,7 +280,7 @@ func TestProcessSchema(t *testing.T) {
 				"product_name": ddl.ColumnDef{Name: "product_name", T: ddl.Type{Name: ddl.String, Len: ddl.MaxLength}, NotNull: true},
 			},
 			PrimaryKeys: []ddl.IndexKey{ddl.IndexKey{ColId: "product_id", Order: 1}}},
-		"test": ddl.CreateTable{
+		"public.test": ddl.CreateTable{
 			Name:   "test",
 			ColIds: []string{"id", "aint", "atext", "b", "bs", "by", "c", "c_8", "d", "f8", "f4", "i8", "i4", "i2", "num", "s", "ts", "tz", "txt", "vc", "vc6"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -293,8 +307,8 @@ func TestProcessSchema(t *testing.T) {
 				"vc6":   ddl.ColumnDef{Name: "vc6", T: ddl.Type{Name: ddl.String, Len: int64(6)}},
 			},
 			PrimaryKeys: []ddl.IndexKey{ddl.IndexKey{ColId: "id", Order: 1}},
-			ForeignKeys: []ddl.Foreignkey{ddl.Foreignkey{Name: "fk_test4", ColIds: []string{"id", "txt"}, ReferTableId: "test_ref", ReferColumnIds: []string{"ref_id", "ref_txt"}, OnDelete: constants.FK_CASCADE, OnUpdate: constants.FK_NO_ACTION}}},
-		"test_ref": ddl.CreateTable{
+			ForeignKeys: []ddl.Foreignkey{ddl.Foreignkey{Name: "fk_test4", ColIds: []string{"id", "txt"}, ReferTableId: "public.test_ref", ReferColumnIds: []string{"ref_id", "ref_txt"}, OnDelete: constants.FK_CASCADE, OnUpdate: constants.FK_NO_ACTION}}},
+		"public.test_ref": ddl.CreateTable{
 			Name:   "test_ref",
 			ColIds: []string{"ref_id", "ref_txt", "abc"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -304,8 +318,9 @@ func TestProcessSchema(t *testing.T) {
 			},
 			PrimaryKeys: []ddl.IndexKey{ddl.IndexKey{ColId: "ref_id", Order: 1}, ddl.IndexKey{ColId: "ref_txt", Order: 2}}},
 	}
+	assert.Equal(t, map[string]schema.NamedSchema{"public": {Name: "public"}, "custom_schema": {Name: "custom_schema"}}, conv.SrcNamedSchemas)
 	internal.AssertSpSchema(conv, t, expectedSchema, stripSchemaComments(conv.SpSchema))
-	cartTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "cart")
+	cartTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "public.cart")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, len(conv.SchemaIssues[cartTableId].ColumnLevelIssues), 0)
 	expectedIssues := map[string][]internal.SchemaIssue{
@@ -318,7 +333,7 @@ func TestProcessSchema(t *testing.T) {
 		"ts":    []internal.SchemaIssue{internal.Timestamp},
 		"atext": []internal.SchemaIssue{internal.ArrayTypeNotSupported},
 	}
-	testTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "test")
+	testTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "public.test")
 	assert.Equal(t, nil, err)
 	internal.AssertTableIssues(conv, t, testTableId, expectedIssues, conv.SchemaIssues[testTableId].ColumnLevelIssues)
 	assert.Equal(t, int64(0), conv.Unexpecteds())
@@ -468,6 +483,20 @@ func TestConvertSqlRow_MultiCol(t *testing.T) {
 	// i.e. ConvertSqlRow uses the schemas built by
 	// ProcessInfoSchema.
 	ms := []mockSpec{
+		// db call to fetch schemas
+		{
+			query: "SELECT (.+) FROM pg_catalog.pg_namespace",
+			args:  []driver.Value{},
+			cols:  []string{"nspname"},
+			rows: [][]driver.Value{
+				{"pg_toast"},
+				{"pg_catalog"},
+				{"information_schema"},
+				{"public"},
+				{"google_vacuum_mgmt"},
+				{"test"},
+			},
+		},
 		{
 			query: "SELECT table_schema, table_name FROM information_schema.tables where table_type = 'BASE TABLE'",
 			cols:  []string{"table_schema", "table_name"},
@@ -520,8 +549,8 @@ func TestConvertSqlRow_MultiCol(t *testing.T) {
 	commonInfoSchema := common.InfoSchemaImpl{}
 	commonInfoSchema.ProcessData(conv, InfoSchemaImpl{db, "migration-project-id", profiles.SourceProfile{}, profiles.TargetProfile{}, newFalsePtr()}, internal.AdditionalDataAttributes{})
 	assert.Equal(t, []spannerData{
-		{table: "test", cols: []string{"a", "b", "synth_id"}, vals: []interface{}{"cat", float64(42.3), "0"}},
-		{table: "test", cols: []string{"a", "c", "synth_id"}, vals: []interface{}{"dog", int64(22), "-9223372036854775808"}}},
+		{table: "public.test", cols: []string{"a", "b", "synth_id"}, vals: []interface{}{"cat", float64(42.3), "0"}},
+		{table: "public.test", cols: []string{"a", "c", "synth_id"}, vals: []interface{}{"dog", int64(22), "-9223372036854775808"}}},
 		rows)
 	assert.Equal(t, int64(0), conv.Unexpecteds())
 }
@@ -547,8 +576,8 @@ func TestSetRowStats(t *testing.T) {
 	conv.SetDataMode()
 	commonInfoSchema := common.InfoSchemaImpl{}
 	commonInfoSchema.SetRowStats(conv, InfoSchemaImpl{db, "migration-project-id", profiles.SourceProfile{}, profiles.TargetProfile{}, newFalsePtr()})
-	assert.Equal(t, int64(5), conv.Stats.Rows["test1"])
-	assert.Equal(t, int64(142), conv.Stats.Rows["test2"])
+	assert.Equal(t, int64(5), conv.Stats.Rows["public.test1"])
+	assert.Equal(t, int64(142), conv.Stats.Rows["public.test2"])
 	assert.Equal(t, int64(0), conv.Unexpecteds())
 }
 

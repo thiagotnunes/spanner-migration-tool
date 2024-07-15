@@ -252,9 +252,9 @@ func (sp *SpannerAccessorImpl) CreateDatabase(ctx context.Context, adminClient s
 	} else {
 		req.CreateStatement = "CREATE DATABASE `" + dbName + "`"
 		if migrationType == constants.DATAFLOW_MIGRATION {
-			req.ExtraStatements = ddl.GetDDL(ddl.Config{Comments: false, ProtectIds: true, Tables: true, ForeignKeys: true, SpDialect: conv.SpDialect, Source: driver}, conv.SpSchema, conv.SpSequences)
+			req.ExtraStatements = ddl.GetDDL(ddl.Config{Comments: false, ProtectIds: true, NamedSchemas: true, Tables: true, ForeignKeys: true, SpDialect: conv.SpDialect, Source: driver}, conv.SpNamedSchemas, conv.SpSchema, conv.SpSequences)
 		} else {
-			req.ExtraStatements = ddl.GetDDL(ddl.Config{Comments: false, ProtectIds: true, Tables: true, ForeignKeys: false, SpDialect: conv.SpDialect, Source: driver}, conv.SpSchema, conv.SpSequences)
+			req.ExtraStatements = ddl.GetDDL(ddl.Config{Comments: false, ProtectIds: true, NamedSchemas: true, Tables: true, ForeignKeys: false, SpDialect: conv.SpDialect, Source: driver}, conv.SpNamedSchemas, conv.SpSchema, conv.SpSequences)
 		}
 
 	}
@@ -280,7 +280,7 @@ func (sp *SpannerAccessorImpl) UpdateDatabase(ctx context.Context, adminClient s
 	// Spanner DDL doesn't accept them), and protects table and col names
 	// using backticks (to avoid any issues with Spanner reserved words).
 	// Foreign Keys are set to false since we create them post data migration.
-	schema := ddl.GetDDL(ddl.Config{Comments: false, ProtectIds: true, Tables: true, ForeignKeys: false, SpDialect: conv.SpDialect, Source: driver}, conv.SpSchema, conv.SpSequences)
+	schema := ddl.GetDDL(ddl.Config{Comments: false, ProtectIds: true, NamedSchemas: true, Tables: true, ForeignKeys: false, SpDialect: conv.SpDialect, Source: driver}, conv.SpNamedSchemas, conv.SpSchema, conv.SpSequences)
 	req := &adminpb.UpdateDatabaseDdlRequest{
 		Database:   dbURI,
 		Statements: schema,
@@ -360,7 +360,7 @@ func (sp *SpannerAccessorImpl) UpdateDDLForeignKeys(ctx context.Context, adminCl
 	// Spanner DDL doesn't accept them), and protects table and col names
 	// using backticks (to avoid any issues with Spanner reserved words).
 	// Sequences will not be passed as they have already been created.
-	fkStmts := ddl.GetDDL(ddl.Config{Comments: false, ProtectIds: true, Tables: false, ForeignKeys: true, SpDialect: conv.SpDialect, Source: driver}, conv.SpSchema, make(map[string]ddl.Sequence))
+	fkStmts := ddl.GetDDL(ddl.Config{Comments: false, ProtectIds: true, NamedSchemas: false, Tables: false, ForeignKeys: true, SpDialect: conv.SpDialect, Source: driver}, conv.SpNamedSchemas, conv.SpSchema, make(map[string]ddl.Sequence))
 	if len(fkStmts) == 0 {
 		return
 	}

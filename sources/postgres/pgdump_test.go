@@ -27,6 +27,7 @@ import (
 
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/common/constants"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/internal"
+	"github.com/GoogleCloudPlatform/spanner-migration-tool/schema"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/sources/common"
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/spanner/ddl"
 	pg_query "github.com/pganalyze/pg_query_go/v5"
@@ -395,8 +396,9 @@ func TestProcessPgDump(t *testing.T) {
 			name:  "Create table with pg schema",
 			input: "CREATE TABLE myschema.test (a text PRIMARY KEY, b text);\n",
 			expectedSchema: map[string]ddl.CreateTable{
-				"myschema_test": ddl.CreateTable{
-					Name:   "myschema_test",
+				"myschema.test": ddl.CreateTable{
+					Schema: "myschema",
+					Name:   "test",
 					ColIds: []string{"a", "b"},
 					ColDefs: map[string]ddl.ColumnDef{
 						"a": ddl.ColumnDef{Name: "a", T: ddl.Type{Name: ddl.String, Len: ddl.MaxLength}, NotNull: true},
@@ -719,6 +721,27 @@ COPY test (id, a, b, c, d, e, f, g) FROM stdin;
 		assert.Equal(t, tc.expectedData, rows, tc.name+": Data rows did not match")
 		assert.Equal(t, conv.BadRows(), int64(6), tc.name+": Error count did not match")
 	}
+}
+
+func TestProcessNamespaces(t *testing.T) {
+	expectedSrcSchemas := map[string]schema.NamedSchema{
+		"custom_schema": {Name: "custom_schema"},
+	}
+	expectedSpSchemas := map[string]ddl.CreateNamedSchema{
+		"custom_schema": {Name: "custom_schema"},
+	}
+	conv, _ := runProcessPgDump(`
+		CREATE SCHEMA custom_schema;
+		CREATE SCHEMA google_vacuum_mgmt; -- System level schema ignored
+		CREATE SCHEMA information_schema; -- System level schema ignored
+		CREATE SCHEMA postgres;           -- System level schema ignored
+		CREATE SCHEMA pg_catalog;         -- System level schema ignored
+		CREATE SCHEMA pg_temp_1;          -- System level schema ignored
+		CREATE SCHEMA pg_toast;           -- System level schema ignored
+		CREATE SCHEMA pg_toast_temp_1;    -- System level schema ignored
+	`)
+	assert.Equal(t, expectedSrcSchemas, conv.SrcNamedSchemas)
+	assert.Equal(t, expectedSpSchemas, conv.SpNamedSchemas)
 }
 
 func TestProcessPgDumpPGTarget(t *testing.T) {
@@ -1071,8 +1094,9 @@ func TestProcessPgDumpPGTarget(t *testing.T) {
 			name:  "Create table with pg schema",
 			input: "CREATE TABLE myschema.test (a text PRIMARY KEY, b text);\n",
 			expectedSchema: map[string]ddl.CreateTable{
-				"myschema_test": ddl.CreateTable{
-					Name:   "myschema_test",
+				"myschema.test": ddl.CreateTable{
+					Schema: "myschema",
+					Name:   "test",
 					ColIds: []string{"a", "b"},
 					ColDefs: map[string]ddl.ColumnDef{
 						"a": ddl.ColumnDef{Name: "a", T: ddl.Type{Name: ddl.String, Len: ddl.MaxLength}, NotNull: true},
@@ -1406,7 +1430,7 @@ func TestProcessPgDump_GetDDL(t *testing.T) {
 			"	quantity INT64,\n" +
 			") PRIMARY KEY (productid, userid)"
 	c := ddl.Config{Tables: true}
-	assert.Equal(t, expected, strings.Join(ddl.GetDDL(c, conv.SpSchema, conv.SpSequences), " "))
+	assert.Equal(t, expected, strings.Join(ddl.GetDDL(c, conv.SpNamedSchemas, conv.SpSchema, conv.SpSequences), " "))
 }
 
 func TestProcessPgDump_GetPGDDL(t *testing.T) {
@@ -1420,7 +1444,7 @@ func TestProcessPgDump_GetPGDDL(t *testing.T) {
 			"	PRIMARY KEY (productid, userid)\n" +
 			")"
 	c := ddl.Config{Tables: true, SpDialect: conv.SpDialect}
-	assert.Equal(t, expected, strings.Join(ddl.GetDDL(c, conv.SpSchema, conv.SpSequences), " "))
+	assert.Equal(t, expected, strings.Join(ddl.GetDDL(c, conv.SpNamedSchemas, conv.SpSchema, conv.SpSequences), " "))
 }
 
 func TestProcessPgDump_Rows(t *testing.T) {

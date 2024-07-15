@@ -128,12 +128,19 @@ func TestPrintPkOrIndexKey(t *testing.T) {
 	}
 }
 
+func TestPrintNamedSchema(t *testing.T) {
+	assert.Equal(t,
+		"CREATE SCHEMA custom_schema",
+		CreateNamedSchema{Name: "custom_schema"}.PrintNamedSchema(Config{NamedSchemas: true}))
+}
+
 func TestPrintCreateTable(t *testing.T) {
 	cds := make(map[string]ColumnDef)
 	cds["col1"] = ColumnDef{Name: "col1", T: Type{Name: Int64}, NotNull: true}
 	cds["col2"] = ColumnDef{Name: "col2", T: Type{Name: String, Len: MaxLength}, NotNull: false}
 	cds["col3"] = ColumnDef{Name: "col3", T: Type{Name: Bytes, Len: int64(42)}, NotNull: false}
 	t1 := CreateTable{
+		"myschema",
 		"mytable",
 		[]string{"col1", "col2", "col3"},
 		"",
@@ -146,6 +153,7 @@ func TestPrintCreateTable(t *testing.T) {
 		"1",
 	}
 	t2 := CreateTable{
+		"",
 		"mytable",
 		[]string{"col1", "col2", "col3"},
 		"",
@@ -206,6 +214,7 @@ func TestPrintCreateTablePG(t *testing.T) {
 	cds["col2"] = ColumnDef{Name: "col2", T: Type{Name: String, Len: MaxLength}, NotNull: false}
 	cds["col3"] = ColumnDef{Name: "col3", T: Type{Name: Bytes, Len: int64(42)}, NotNull: false}
 	t1 := CreateTable{
+		"myschema",
 		"mytable",
 		[]string{"col1", "col2", "col3"},
 		"",
@@ -218,6 +227,7 @@ func TestPrintCreateTablePG(t *testing.T) {
 		"1",
 	}
 	t2 := CreateTable{
+		"",
 		"mytable",
 		[]string{"col1", "col2", "col3"},
 		"",
@@ -634,7 +644,7 @@ func TestGetDDL(t *testing.T) {
 			ParentId:    "t1",
 		},
 	}
-	tablesOnly := GetDDL(Config{Tables: true, ForeignKeys: false}, s, make(map[string]Sequence))
+	tablesOnly := GetDDL(Config{NamedSchemas: false, Tables: true, ForeignKeys: false}, NamedSchemas{}, s, make(map[string]Sequence))
 	e := []string{
 		"CREATE TABLE table1 (\n" +
 			"	a INT64,\n" +
@@ -656,14 +666,14 @@ func TestGetDDL(t *testing.T) {
 	}
 	assert.ElementsMatch(t, e, tablesOnly)
 
-	fksOnly := GetDDL(Config{Tables: false, ForeignKeys: true}, s, make(map[string]Sequence))
+	fksOnly := GetDDL(Config{NamedSchemas: false, Tables: false, ForeignKeys: true}, NamedSchemas{}, s, make(map[string]Sequence))
 	e2 := []string{
 		"ALTER TABLE table1 ADD CONSTRAINT fk1 FOREIGN KEY (b) REFERENCES table2 (b) ON DELETE CASCADE",
 		"ALTER TABLE table2 ADD CONSTRAINT fk2 FOREIGN KEY (b, c) REFERENCES table3 (b, c) ON DELETE NO ACTION",
 	}
 	assert.ElementsMatch(t, e2, fksOnly)
 
-	tablesAndFks := GetDDL(Config{Tables: true, ForeignKeys: true}, s, make(map[string]Sequence))
+	tablesAndFks := GetDDL(Config{NamedSchemas: false, Tables: true, ForeignKeys: true}, NamedSchemas{}, s, make(map[string]Sequence))
 	e3 := []string{
 		"CREATE TABLE table1 (\n" +
 			"	a INT64,\n" +
@@ -698,8 +708,19 @@ func TestGetDDL(t *testing.T) {
 	}
 	e4 := []string{
 		"CREATE SEQUENCE sequence1 OPTIONS (sequence_kind='bit_reversed_positive', skip_range_min = 0, skip_range_max = 5, start_with_counter = 7) "}
-	sequencesOnly := GetDDL(Config{}, Schema{}, sequences)
+	sequencesOnly := GetDDL(Config{}, NamedSchemas{}, Schema{}, sequences)
 	assert.ElementsMatch(t, e4, sequencesOnly)
+
+	namedSchemas := NamedSchemas{
+		"custom_schema": CreateNamedSchema{Name: "custom_schema"},
+		"test_schema":   CreateNamedSchema{Name: "test_schema"},
+	}
+	e5 := []string{
+		"CREATE SCHEMA custom_schema",
+		"CREATE SCHEMA test_schema",
+	}
+	namedSchemasOnly := GetDDL(Config{NamedSchemas: true}, namedSchemas, Schema{}, make(map[string]Sequence))
+	assert.ElementsMatch(t, e5, namedSchemasOnly)
 }
 
 func TestGetPGDDL(t *testing.T) {
@@ -742,7 +763,7 @@ func TestGetPGDDL(t *testing.T) {
 			ParentId:    "t1",
 		},
 	}
-	tablesOnly := GetDDL(Config{Tables: true, ForeignKeys: false, SpDialect: constants.DIALECT_POSTGRESQL}, s, make(map[string]Sequence))
+	tablesOnly := GetDDL(Config{NamedSchemas: false, Tables: true, ForeignKeys: false, SpDialect: constants.DIALECT_POSTGRESQL}, NamedSchemas{}, s, make(map[string]Sequence))
 	e := []string{
 		"CREATE TABLE table1 (\n" +
 			"	a INT8,\n" +
@@ -766,14 +787,14 @@ func TestGetPGDDL(t *testing.T) {
 	}
 	assert.ElementsMatch(t, e, tablesOnly)
 
-	fksOnly := GetDDL(Config{Tables: false, ForeignKeys: true, SpDialect: constants.DIALECT_POSTGRESQL}, s, make(map[string]Sequence))
+	fksOnly := GetDDL(Config{NamedSchemas: false, Tables: false, ForeignKeys: true, SpDialect: constants.DIALECT_POSTGRESQL}, NamedSchemas{}, s, make(map[string]Sequence))
 	e2 := []string{
 		"ALTER TABLE table1 ADD CONSTRAINT fk1 FOREIGN KEY (b) REFERENCES table2 (b) ON DELETE CASCADE",
 		"ALTER TABLE table2 ADD CONSTRAINT fk2 FOREIGN KEY (b, c) REFERENCES table3 (b, c) ON DELETE NO ACTION",
 	}
 	assert.ElementsMatch(t, e2, fksOnly)
 
-	tablesAndFks := GetDDL(Config{Tables: true, ForeignKeys: true, SpDialect: constants.DIALECT_POSTGRESQL}, s, make(map[string]Sequence))
+	tablesAndFks := GetDDL(Config{NamedSchemas: false, Tables: true, ForeignKeys: true, SpDialect: constants.DIALECT_POSTGRESQL}, NamedSchemas{}, s, make(map[string]Sequence))
 	e3 := []string{
 		"CREATE TABLE table1 (\n" +
 			"	a INT8,\n" +
@@ -810,8 +831,19 @@ func TestGetPGDDL(t *testing.T) {
 	}
 	e4 := []string{
 		"CREATE SEQUENCE sequence1 BIT_REVERSED_POSITIVE SKIP RANGE 0 5 START COUNTER WITH 7"}
-	sequencesOnly := GetDDL(Config{SpDialect: constants.DIALECT_POSTGRESQL}, Schema{}, sequences)
+	sequencesOnly := GetDDL(Config{SpDialect: constants.DIALECT_POSTGRESQL}, NamedSchemas{}, Schema{}, sequences)
 	assert.ElementsMatch(t, e4, sequencesOnly)
+
+	namedSchemas := NamedSchemas{
+		"custom_schema": CreateNamedSchema{Name: "custom_schema"},
+		"test_schema":   CreateNamedSchema{Name: "test_schema"},
+	}
+	e5 := []string{
+		"CREATE SCHEMA custom_schema",
+		"CREATE SCHEMA test_schema",
+	}
+	namedSchemasOnly := GetDDL(Config{SpDialect: constants.DIALECT_POSTGRESQL, NamedSchemas: true}, namedSchemas, Schema{}, make(map[string]Sequence))
+	assert.ElementsMatch(t, e5, namedSchemasOnly)
 }
 
 func TestGetSortedTableIdsBySpName(t *testing.T) {

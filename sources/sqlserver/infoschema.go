@@ -190,6 +190,12 @@ func (isi InfoSchemaImpl) GetRowCount(table common.SchemaAndName) (int64, error)
 	return 0, nil
 }
 
+// GetSchemas return a list of schemas in the selected database.
+// This is currently only supported for PostgreSQL.
+func (isi InfoSchemaImpl) GetSchemas() ([]schema.NamedSchema, error) {
+	return []schema.NamedSchema{}, nil
+}
+
 // GetTables return list of tables in the selected database.
 func (isi InfoSchemaImpl) GetTables() ([]common.SchemaAndName, error) {
 	q := `
@@ -348,7 +354,6 @@ func (isi InfoSchemaImpl) GetForeignKeys(conv *internal.Conv, table common.Schem
 			conv.Unexpected(fmt.Sprintf("Can't scan: %v", err))
 			continue
 		}
-		tableName := isi.GetTableName(refTable.Schema, refTable.Name)
 		if _, found := fKeys[fKeyName]; found {
 			fk := fKeys[fKeyName]
 			fk.Cols = append(fk.Cols, col)
@@ -356,7 +361,7 @@ func (isi InfoSchemaImpl) GetForeignKeys(conv *internal.Conv, table common.Schem
 			fKeys[fKeyName] = fk
 			continue
 		}
-		fKeys[fKeyName] = common.FkConstraint{Name: fKeyName, Table: tableName, Refcols: []string{refCol}, Cols: []string{col}}
+		fKeys[fKeyName] = common.FkConstraint{Name: fKeyName, TableSchema: refTable.Schema, Table: refTable.Name, Refcols: []string{refCol}, Cols: []string{col}}
 		keyNames = append(keyNames, fKeyName)
 	}
 
@@ -367,6 +372,7 @@ func (isi InfoSchemaImpl) GetForeignKeys(conv *internal.Conv, table common.Schem
 				Id:               internal.GenerateForeignkeyId(),
 				Name:             fKeys[k].Name,
 				ColumnNames:      fKeys[k].Cols,
+				ReferTableSchema: fKeys[k].TableSchema,
 				ReferTableName:   fKeys[k].Table,
 				ReferColumnNames: fKeys[k].Refcols})
 	}

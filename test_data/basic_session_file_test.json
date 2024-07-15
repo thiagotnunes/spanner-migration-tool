@@ -146,5 +146,15 @@
    "ColumnsUsingSeq": null
   }
  },
- "SrcSequences": {}
+ "SrcSequences": {},
+ "SpNamedSchemas": {
+    "default": {
+        "Name": "default"
+    }
+ },
+ "SrcNamedSchemas": {
+    "default": {
+        "Name": "default"
+    }
+ }
 }

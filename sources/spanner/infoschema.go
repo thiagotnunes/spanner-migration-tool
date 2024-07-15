@@ -97,6 +97,32 @@ func (isi InfoSchemaImpl) GetTableName(schema string, tableName string) string {
 	return fmt.Sprintf("%s.%s", schema, tableName)
 }
 
+// GetSchemas return a list of schemas in the selected database.
+func (isi InfoSchemaImpl) GetSchemas() ([]schema.NamedSchema, error) {
+	q := "SELECT schema_name FROM information_schema.schemata"
+	stmt := spanner.Statement{SQL: q}
+	iter := isi.Client.Single().Query(isi.Ctx, stmt)
+	defer iter.Stop()
+
+	var name string
+	var namedSchemas []schema.NamedSchema
+	for {
+		row, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("couldn't get schemas: %w", err)
+		}
+		err = row.Columns(&name)
+		if err != nil {
+			return nil, err
+		}
+		namedSchemas = append(namedSchemas, schema.NamedSchema{Name: name})
+	}
+	return namedSchemas, nil
+}
+
 // GetTables return list of tables in the selected database.
 func (isi InfoSchemaImpl) GetTables() ([]common.SchemaAndName, error) {
 	q := `SELECT table_schema, table_name FROM information_schema.tables 
@@ -288,7 +314,7 @@ func (isi InfoSchemaImpl) GetForeignKeys(conv *internal.Conv, table common.Schem
 			fKeys[fKeyName] = fk
 			continue
 		}
-		fKeys[fKeyName] = common.FkConstraint{Name: fKeyName, Table: isi.GetTableName(table.Schema, refTable), Refcols: []string{refCol}, Cols: []string{col}}
+		fKeys[fKeyName] = common.FkConstraint{Name: fKeyName, Table: fmt.Sprintf("%s.%s", table.Schema, refTable), Refcols: []string{refCol}, Cols: []string{col}}
 		keyNames = append(keyNames, fKeyName)
 	}
 	sort.Strings(keyNames)

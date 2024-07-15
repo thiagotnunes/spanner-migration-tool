@@ -33,6 +33,11 @@ import (
 	"github.com/GoogleCloudPlatform/spanner-migration-tool/spanner/ddl"
 )
 
+// NamedSchema represents a database schema.
+type NamedSchema struct {
+	Name string
+}
+
 // Table represents a database table.
 type Table struct {
 	Name         string
@@ -49,12 +54,12 @@ type Table struct {
 // Column represents a database column.
 // TODO: add support for foreign keys.
 type Column struct {
-	Name    	string
-	Type    	Type
-	NotNull 	bool
-	Ignored 	Ignored
-	Id      	string
-	AutoGen		ddl.AutoGenCol
+	Name    string
+	Type    Type
+	NotNull bool
+	Ignored Ignored
+	Id      string
+	AutoGen ddl.AutoGenCol
 }
 
 // ForeignKey represents a foreign key.
@@ -68,6 +73,7 @@ type ForeignKey struct {
 	ColIds           []string
 	ColumnNames      []string `json:"-"`
 	ReferTableId     string
+	ReferTableSchema string   `json:"-"`
 	ReferTableName   string   `json:"-"`
 	ReferColumnIds   []string // len(ReferColumnIds) must be same as len(ColIds)
 	ReferColumnNames []string `json:"-"`

@@ -25,7 +25,7 @@ import (
 )
 
 func TestReadSessionFile(t *testing.T) {
-	createdExpectedConv := func() *internal.Conv {
+	createExpectedConv := func() *internal.Conv {
 		expectedConv := internal.MakeConv()
 		expectedConv.SpSchema = map[string]ddl.CreateTable{
 			"t1": {
@@ -99,13 +99,19 @@ func TestReadSessionFile(t *testing.T) {
 		}
 		return expectedConv
 	}
-	expectedConvWithSequences := createdExpectedConv()
-	expectedConvWithSequences.SpSequences = map[string]ddl.Sequence{
+	expectedConvWithExtras := createExpectedConv()
+	expectedConvWithExtras.SpSequences = map[string]ddl.Sequence{
 		"s1": {
 			Name:         "Seq",
 			Id:           "s1",
 			SequenceKind: "BIT REVERSED POSITIVE",
 		},
+	}
+	expectedConvWithExtras.SpNamedSchemas = ddl.NamedSchemas{
+		"default": {Name: "default"},
+	}
+	expectedConvWithExtras.SrcNamedSchemas = map[string]schema.NamedSchema{
+		"default": {Name: "default"},
 	}
 	testCases := []struct {
 		name         string
@@ -116,13 +122,13 @@ func TestReadSessionFile(t *testing.T) {
 		{
 			name:         "test basic session file",
 			filePath:     filepath.Join("..", "test_data", "basic_session_file_test.json"),
-			expectedConv: expectedConvWithSequences,
+			expectedConv: expectedConvWithExtras,
 			expectError:  false,
 		},
 		{
-			name:         "test session file without sequences",
-			filePath:     filepath.Join("..", "test_data", "basic_sessions_file_wo_sequences_test.json"),
-			expectedConv: createdExpectedConv(),
+			name:         "test session file without named schemas and sequences",
+			filePath:     filepath.Join("..", "test_data", "basic_sessions_file_wo_extras_test.json"),
+			expectedConv: createExpectedConv(),
 			expectError:  false,
 		},
 	}
