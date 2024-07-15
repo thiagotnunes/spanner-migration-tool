@@ -252,7 +252,7 @@ func TestProcessSchema(t *testing.T) {
 	err := processSchema.ProcessSchema(conv, InfoSchemaImpl{"test", db}, 1, internal.AdditionalSchemaAttributes{}, &common.SchemaToSpannerImpl{}, &common.UtilsOrderImpl{}, &common.InfoSchemaImpl{})
 	assert.Nil(t, err)
 	expectedSchema := map[string]ddl.CreateTable{
-		"user": {
+		"dbo.user": {
 			Name:   "user",
 			ColIds: []string{"user_id", "name", "ref"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -261,8 +261,8 @@ func TestProcessSchema(t *testing.T) {
 				"ref":     {Name: "ref", T: ddl.Type{Name: ddl.Int64}},
 			},
 			PrimaryKeys: []ddl.IndexKey{{ColId: "user_id", Order: 1}},
-			ForeignKeys: []ddl.Foreignkey{{Name: "fk_test", ColIds: []string{"ref"}, ReferTableId: "test", ReferColumnIds: []string{"Id"}}}},
-		"test": {
+			ForeignKeys: []ddl.Foreignkey{{Name: "fk_test", ColIds: []string{"ref"}, ReferTableId: "dbo.test", ReferColumnIds: []string{"Id"}}}},
+		"dbo.test": {
 			Name: "test",
 			ColIds: []string{"Id", "BigInt", "Binary", "Bit", "Char", "Date", "DateTime",
 				"DateTime2", "DateTimeOffset", "Decimal", "Float", "Geography", "Geometry", "HierarchyId",
@@ -309,9 +309,9 @@ func TestProcessSchema(t *testing.T) {
 				"Xml":              {Name: "Xml", T: ddl.Type{Name: ddl.String, Len: ddl.MaxLength}, NotNull: false},
 			},
 			PrimaryKeys: []ddl.IndexKey{{ColId: "Id", Order: 1}},
-			ForeignKeys: []ddl.Foreignkey{{Name: "fk_test4", ColIds: []string{"Id"}, ReferTableId: "test_ref", ReferColumnIds: []string{"ref_id"}}},
+			ForeignKeys: []ddl.Foreignkey{{Name: "fk_test4", ColIds: []string{"Id"}, ReferTableId: "dbo.test_ref", ReferColumnIds: []string{"ref_id"}}},
 		},
-		"cart": {
+		"dbo.cart": {
 			Name:   "cart",
 			ColIds: []string{"productid", "userid", "quantity"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -320,12 +320,12 @@ func TestProcessSchema(t *testing.T) {
 				"quantity":  {Name: "quantity", T: ddl.Type{Name: ddl.Int64}},
 			},
 			PrimaryKeys: []ddl.IndexKey{{ColId: "productid", Order: 1}, {ColId: "userid", Order: 2}},
-			ForeignKeys: []ddl.Foreignkey{{Name: "fk_test2", ColIds: []string{"productid"}, ReferTableId: "product", ReferColumnIds: []string{"product_id"}},
-				{Name: "fk_test3", ColIds: []string{"userid"}, ReferTableId: "user", ReferColumnIds: []string{"user_id"}}},
-			Indexes: []ddl.CreateIndex{{Name: "index1", TableId: "cart", Unique: false, Keys: []ddl.IndexKey{{ColId: "userid", Desc: false, Order: 1}}},
-				{Name: "index2", TableId: "cart", Unique: true, Keys: []ddl.IndexKey{{ColId: "userid", Desc: false, Order: 1}}, StoredColumnIds: []string{"productid"}},
-				{Name: "index3", TableId: "cart", Unique: true, Keys: []ddl.IndexKey{{ColId: "productid", Desc: true, Order: 1}, {ColId: "userid", Desc: false, Order: 2}}}}},
-		"product": {
+			ForeignKeys: []ddl.Foreignkey{{Name: "fk_test2", ColIds: []string{"productid"}, ReferTableId: "production.product", ReferColumnIds: []string{"product_id"}},
+				{Name: "fk_test3", ColIds: []string{"userid"}, ReferTableId: "dbo.user", ReferColumnIds: []string{"user_id"}}},
+			Indexes: []ddl.CreateIndex{{Name: "index1", TableId: "dbo.cart", Unique: false, Keys: []ddl.IndexKey{{ColId: "userid", Desc: false, Order: 1}}},
+				{Name: "index2", TableId: "dbo.cart", Unique: true, Keys: []ddl.IndexKey{{ColId: "userid", Desc: false, Order: 1}}, StoredColumnIds: []string{"productid"}},
+				{Name: "index3", TableId: "dbo.cart", Unique: true, Keys: []ddl.IndexKey{{ColId: "productid", Desc: true, Order: 1}, {ColId: "userid", Desc: false, Order: 2}}}}},
+		"production.product": {
 			Name:   "product",
 			Schema: "production",
 			ColIds: []string{"product_id", "product_name"},
@@ -334,7 +334,7 @@ func TestProcessSchema(t *testing.T) {
 				"product_name": {Name: "product_name", T: ddl.Type{Name: ddl.String, Len: ddl.MaxLength}, NotNull: true},
 			},
 			PrimaryKeys: []ddl.IndexKey{{ColId: "product_id", Order: 1}}},
-		"test_ref": {
+		"dbo.test_ref": {
 			Name:   "test_ref",
 			ColIds: []string{"ref_id", "ref_txt", "abc"},
 			ColDefs: map[string]ddl.ColumnDef{
@@ -346,9 +346,9 @@ func TestProcessSchema(t *testing.T) {
 	}
 	internal.AssertSpSchema(conv, t, expectedSchema, stripSchemaComments(conv.SpSchema))
 
-	cartTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "cart")
+	cartTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "dbo.cart")
 	assert.Equal(t, nil, err)
-	testTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "test")
+	testTableId, err := internal.GetTableIdFromSpName(conv.SpSchema, "dbo.test")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, len(conv.SchemaIssues[cartTableId].ColumnLevelIssues), 0)
 	assert.Equal(t, len(conv.SchemaIssues[testTableId].ColumnLevelIssues), 17)
