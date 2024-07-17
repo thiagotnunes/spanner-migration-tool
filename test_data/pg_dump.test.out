@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.16
--- Dumped by pg_dump version 12.1 (Debian 12.1-1)
+-- Dumped from database version 15.5
+-- Dumped by pg_dump version 15.6 (Debian 15.6-0+deb12u1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -16,148 +16,3910 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: custom_schema; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA custom_schema;
+
+
+ALTER SCHEMA custom_schema OWNER TO postgres;
+
+--
+-- Name: google_vacuum_mgmt; Type: SCHEMA; Schema: -; Owner: cloudsqladmin
+--
+
+CREATE SCHEMA google_vacuum_mgmt;
+
+
+ALTER SCHEMA google_vacuum_mgmt OWNER TO cloudsqladmin;
+
+--
+-- Name: custom_collation; Type: COLLATION; Schema: public; Owner: postgres
+--
+
+CREATE COLLATION custom_collation (provider = libc, locale = 'C');
+
+
+ALTER COLLATION custom_collation OWNER TO postgres;
+
+--
+-- Name: google_vacuum_mgmt; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS google_vacuum_mgmt WITH SCHEMA google_vacuum_mgmt;
+
+
+--
+-- Name: EXTENSION google_vacuum_mgmt; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION google_vacuum_mgmt IS 'extension for assistive operational tooling';
+
+
+--
+-- Name: custom_domain; Type: DOMAIN; Schema: public; Owner: postgres
+--
+
+CREATE DOMAIN custom_domain AS bigint
+	CONSTRAINT custom_domain_check CHECK ((VALUE > 0));
+
+
+ALTER DOMAIN custom_domain OWNER TO postgres;
+
+--
+-- Name: int8pair; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE int8pair AS (
+	f1 bigint,
+	f2 bigint
+);
+
+
+ALTER TYPE int8pair OWNER TO postgres;
+
+--
+-- Name: add(bigint, bigint); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION add(bigint, bigint) RETURNS bigint
+    LANGUAGE sql IMMUTABLE STRICT
+    AS $_$SELECT $1 + $2$_$;
+
+
+ALTER FUNCTION add(bigint, bigint) OWNER TO postgres;
+
+--
+-- Name: insert_data(bigint, bigint); Type: PROCEDURE; Schema: public; Owner: postgres
+--
+
+CREATE PROCEDURE insert_data(IN a bigint, IN b bigint)
+    LANGUAGE sql
+    AS $$
+INSERT INTO procedure_table VALUES (1, a);
+INSERT INTO procedure_table VALUES (2, b);
+$$;
+
+
+ALTER PROCEDURE insert_data(IN a bigint, IN b bigint) OWNER TO postgres;
+
 SET default_tablespace = '';
 
+SET default_table_access_method = heap;
+
 --
--- Name: cart; Type: TABLE; Schema: public; Owner: postgres
+-- Name: custom_schema_table; Type: TABLE; Schema: custom_schema; Owner: postgres
 --
 
-CREATE TABLE public.cart (
-    productid text NOT NULL,
-    userid text NOT NULL,
-    quantity bigint
+CREATE TABLE custom_schema.custom_schema_table (
+    id bigint NOT NULL
 );
 
 
-ALTER TABLE public.cart OWNER TO postgres;
+ALTER TABLE custom_schema.custom_schema_table OWNER TO postgres;
 
 --
--- Name: test; Type: TABLE; Schema: public; Owner: postgres
+-- Name: abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.test (
-    id integer NOT NULL,
-    t timestamp without time zone,
-    tz timestamp with time zone
+CREATE TABLE abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc (
+    id bigint NOT NULL
 );
 
 
-ALTER TABLE public.test OWNER TO postgres;
+ALTER TABLE abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc OWNER TO postgres;
 
 --
--- Name: test2; Type: TABLE; Schema: public; Owner: postgres
+-- Name: constraints_table; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.test2 (
-    id integer NOT NULL,
-    a boolean,
-    b bytea,
-    c date,
-    d double precision,
-    e integer,
-    f numeric(38, 9),
-    g text
+CREATE TABLE constraints_table (
+    id bigint NOT NULL,
+    price numeric,
+    discounted_price numeric,
+    CONSTRAINT constraints_table_check CHECK ((price > discounted_price)),
+    CONSTRAINT constraints_table_price_check CHECK ((price > (0)::numeric)),
+    CONSTRAINT positive_discounted_price CHECK ((discounted_price > (0)::numeric))
 );
 
 
-ALTER TABLE public.test2 OWNER TO postgres;
+ALTER TABLE constraints_table OWNER TO postgres;
 
 --
--- Name: test3; Type: TABLE; Schema: public; Owner: postgres
+-- Name: custom_collation_table; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.test3 (
-    id integer NOT NULL,
-    a integer[],
-    b text[]
+CREATE TABLE custom_collation_table (
+    id bigint NOT NULL,
+    data text
 );
 
 
-ALTER TABLE public.test3 OWNER TO postgres;
+ALTER TABLE custom_collation_table OWNER TO postgres;
 
 --
--- Data for Name: cart; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Name: custom_domain_table; Type: TABLE; Schema: public; Owner: postgres
 --
 
-COPY public.cart (productid, userid, quantity) FROM stdin;
-1YMWWN1N4O	64e10503-9b6f-48e5-9e9c-2b7818ee322d	2
-OLJCESPC7Z	419af207-ac61-4131-b1a6-bb627405e92d	1
-OLJCESPC7Z	31ad80e3-182b-42b0-a164-b4c7ea976ce4	125
-OLJCESPC7Z	17b14ec1-5a42-4087-bb3f-3ebd32bacf2a	106
+CREATE TABLE custom_domain_table (
+    id bigint NOT NULL,
+    col custom_domain
+);
+
+
+ALTER TABLE custom_domain_table OWNER TO postgres;
+
+--
+-- Name: sequence_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE sequence_table (
+    id bigint NOT NULL
+);
+
+
+ALTER TABLE sequence_table OWNER TO postgres;
+
+--
+-- Name: custom_sequence; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE custom_sequence
+    START WITH 100
+    INCREMENT BY 5
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE custom_sequence OWNER TO postgres;
+
+--
+-- Name: custom_sequence; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE custom_sequence OWNED BY sequence_table.id;
+
+
+--
+-- Name: data_types; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE data_types (
+    id bigint NOT NULL,
+    col_bit bit(1),
+    col_bool boolean,
+    col_box box,
+    col_bytea bytea,
+    col_char character(1),
+    col_cidr cidr,
+    col_circle circle,
+    col_date date,
+    col_decimal numeric,
+    col_float4 real,
+    col_float8 double precision,
+    col_inet inet,
+    col_int2 smallint,
+    col_int4 integer,
+    col_int8 bigint,
+    col_interval interval,
+    col_json json,
+    col_jsonb jsonb,
+    col_line line,
+    col_lseg lseg,
+    col_macaddr macaddr,
+    col_macaddr8 macaddr8,
+    col_money money,
+    col_path path,
+    col_pg_lsn pg_lsn,
+    col_pg_snapshot pg_snapshot,
+    col_point point,
+    col_polygon polygon,
+    col_serial2 smallint NOT NULL,
+    col_serial4 integer NOT NULL,
+    col_serial8 bigint NOT NULL,
+    col_text text,
+    col_time time without time zone,
+    col_timestamp timestamp without time zone,
+    col_timestamptz timestamp with time zone,
+    col_timetz time with time zone,
+    col_tsquery tsquery,
+    col_tsvector tsvector,
+    col_txid_snapshot txid_snapshot,
+    col_uuid uuid,
+    col_varbit bit varying,
+    col_varchar character varying,
+    col_xml xml
+);
+
+
+ALTER TABLE data_types OWNER TO postgres;
+
+--
+-- Name: data_types_col_serial2_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_types_col_serial2_seq
+    AS smallint
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE data_types_col_serial2_seq OWNER TO postgres;
+
+--
+-- Name: data_types_col_serial2_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_types_col_serial2_seq OWNED BY data_types.col_serial2;
+
+
+--
+-- Name: data_types_col_serial4_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_types_col_serial4_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE data_types_col_serial4_seq OWNER TO postgres;
+
+--
+-- Name: data_types_col_serial4_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_types_col_serial4_seq OWNED BY data_types.col_serial4;
+
+
+--
+-- Name: data_types_col_serial8_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE data_types_col_serial8_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE data_types_col_serial8_seq OWNER TO postgres;
+
+--
+-- Name: data_types_col_serial8_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE data_types_col_serial8_seq OWNED BY data_types.col_serial8;
+
+
+--
+-- Name: default_values; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE default_values (
+    id bigint NOT NULL,
+    col_bool boolean DEFAULT true,
+    col_bytea bytea DEFAULT '\x313233'::bytea,
+    col_char character(1) DEFAULT 'a'::bpchar,
+    col_date date DEFAULT '2024-04-19'::date,
+    col_decimal numeric DEFAULT 1.23,
+    col_float4 real DEFAULT 1.23,
+    col_float8 double precision DEFAULT 1.23,
+    col_int2 smallint DEFAULT 123,
+    col_int4 integer DEFAULT 123,
+    col_int8 bigint DEFAULT 123,
+    col_json json DEFAULT '{"a": "b"}'::json,
+    col_jsonb jsonb DEFAULT '{"a": "b"}'::jsonb,
+    col_text text DEFAULT 'abc'::text,
+    col_timestamp timestamp without time zone DEFAULT '2024-04-19 01:02:03'::timestamp without time zone,
+    col_timestamptz timestamp with time zone DEFAULT '2024-04-19 01:02:03+00'::timestamp with time zone,
+    col_varchar character varying DEFAULT 'abc'::character varying
+);
+
+
+ALTER TABLE default_values OWNER TO postgres;
+
+--
+-- Name: exclusion_constraint_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE exclusion_constraint_table (
+    id bigint NOT NULL,
+    room_id bigint
+);
+
+
+ALTER TABLE exclusion_constraint_table OWNER TO postgres;
+
+--
+-- Name: foreign_key_table_1; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE foreign_key_table_1 (
+    id bigint NOT NULL,
+    parent_id bigint
+);
+
+
+ALTER TABLE foreign_key_table_1 OWNER TO postgres;
+
+--
+-- Name: foreign_key_table_2; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE foreign_key_table_2 (
+    id_1 bigint NOT NULL,
+    id_2 bigint NOT NULL,
+    fk_tb_1_id bigint
+);
+
+
+ALTER TABLE foreign_key_table_2 OWNER TO postgres;
+
+--
+-- Name: foreign_key_table_3; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE foreign_key_table_3 (
+    id bigint NOT NULL,
+    fk_tb_2_id_1 bigint,
+    fk_tb_2_id_2 bigint
+);
+
+
+ALTER TABLE foreign_key_table_3 OWNER TO postgres;
+
+--
+-- Name: foreign_key_table_4; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE foreign_key_table_4 (
+    fk_tb_1_id bigint NOT NULL,
+    fk_tb_3_id bigint NOT NULL
+);
+
+
+ALTER TABLE foreign_key_table_4 OWNER TO postgres;
+
+--
+-- Name: foreign_key_table_5; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE foreign_key_table_5 (
+    id bigint NOT NULL,
+    fk_tb_1_id_1 bigint,
+    fk_tb_1_id_2 bigint,
+    fk_tb_1_id_3 bigint,
+    fk_tb_1_id_4 bigint
+);
+
+
+ALTER TABLE foreign_key_table_5 OWNER TO postgres;
+
+--
+-- Name: foreign_key_table_6; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE foreign_key_table_6 (
+    id bigint NOT NULL,
+    fk_tb_1_id_1 bigint,
+    fk_tb_1_id_2 bigint
+);
+
+
+ALTER TABLE foreign_key_table_6 OWNER TO postgres;
+
+--
+-- Name: generated_columns; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE generated_columns (
+    id bigint NOT NULL,
+    height_cm numeric,
+    height_in numeric GENERATED ALWAYS AS ((height_cm / 2.54)) STORED
+);
+
+
+ALTER TABLE generated_columns OWNER TO postgres;
+
+--
+-- Name: index_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE index_table (
+    id bigint NOT NULL,
+    col1 bigint,
+    col2 bigint,
+    col3 bigint,
+    col4 bigint,
+    col5 text,
+    col6 bigint,
+    col7 bigint,
+    col8 text,
+    data text
+);
+
+
+ALTER TABLE index_table OWNER TO postgres;
+
+--
+-- Name: inheritance_table_1; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE inheritance_table_1 (
+    id bigint NOT NULL,
+    col1 text
+);
+
+
+ALTER TABLE inheritance_table_1 OWNER TO postgres;
+
+--
+-- Name: inheritance_table_2; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE inheritance_table_2 (
+    col2 text
+)
+INHERITS (inheritance_table_1);
+
+
+ALTER TABLE inheritance_table_2 OWNER TO postgres;
+
+--
+-- Name: long_index_name_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE long_index_name_table (
+    id bigint NOT NULL,
+    col1 bigint
+);
+
+
+ALTER TABLE long_index_name_table OWNER TO postgres;
+
+--
+-- Name: long_index_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE long_index_table (
+    id bigint NOT NULL,
+    col1 bigint,
+    col2 bigint,
+    col3 bigint,
+    col4 bigint,
+    col5 bigint,
+    col6 bigint,
+    col7 bigint,
+    col8 bigint,
+    col9 bigint,
+    col10 bigint,
+    col11 bigint,
+    col12 bigint,
+    col13 bigint,
+    col14 bigint,
+    col15 bigint,
+    col16 bigint,
+    col17 bigint,
+    col18 bigint,
+    col19 bigint,
+    col20 bigint,
+    col21 bigint,
+    col22 bigint,
+    col23 bigint,
+    col24 bigint,
+    col25 bigint,
+    col26 bigint,
+    col27 bigint,
+    col28 bigint,
+    col29 bigint,
+    col30 bigint,
+    col31 bigint,
+    col32 bigint,
+    col33 bigint,
+    col34 bigint,
+    col35 bigint,
+    col36 bigint,
+    col37 bigint,
+    col38 bigint,
+    col39 bigint,
+    col40 bigint,
+    col41 bigint,
+    col42 bigint,
+    col43 bigint,
+    col44 bigint,
+    col45 bigint,
+    col46 bigint,
+    col47 bigint,
+    col48 bigint,
+    col49 bigint,
+    col50 bigint,
+    col51 bigint,
+    col52 bigint,
+    col53 bigint,
+    col54 bigint,
+    col55 bigint,
+    col56 bigint,
+    col57 bigint,
+    col58 bigint,
+    col59 bigint,
+    col60 bigint,
+    col61 bigint,
+    col62 bigint,
+    col63 bigint,
+    col64 bigint,
+    col65 bigint,
+    col66 bigint,
+    col67 bigint,
+    col68 bigint,
+    col69 bigint,
+    col70 bigint,
+    col71 bigint,
+    col72 bigint,
+    col73 bigint,
+    col74 bigint,
+    col75 bigint,
+    col76 bigint,
+    col77 bigint,
+    col78 bigint,
+    col79 bigint,
+    col80 bigint,
+    col81 bigint,
+    col82 bigint,
+    col83 bigint,
+    col84 bigint,
+    col85 bigint,
+    col86 bigint,
+    col87 bigint,
+    col88 bigint,
+    col89 bigint,
+    col90 bigint,
+    col91 bigint,
+    col92 bigint,
+    col93 bigint,
+    col94 bigint,
+    col95 bigint,
+    col96 bigint,
+    col97 bigint,
+    col98 bigint,
+    col99 bigint,
+    col100 bigint,
+    col101 bigint,
+    col102 bigint,
+    col103 bigint,
+    col104 bigint,
+    col105 bigint,
+    col106 bigint,
+    col107 bigint,
+    col108 bigint,
+    col109 bigint,
+    col110 bigint,
+    col111 bigint,
+    col112 bigint,
+    col113 bigint,
+    col114 bigint,
+    col115 bigint,
+    col116 bigint,
+    col117 bigint,
+    col118 bigint,
+    col119 bigint,
+    col120 bigint,
+    col121 bigint,
+    col122 bigint,
+    col123 bigint,
+    col124 bigint,
+    col125 bigint,
+    col126 bigint,
+    col127 bigint,
+    col128 bigint,
+    col129 bigint,
+    col130 bigint,
+    col131 bigint,
+    col132 bigint,
+    col133 bigint,
+    col134 bigint,
+    col135 bigint,
+    col136 bigint,
+    col137 bigint,
+    col138 bigint,
+    col139 bigint,
+    col140 bigint,
+    col141 bigint,
+    col142 bigint,
+    col143 bigint,
+    col144 bigint,
+    col145 bigint,
+    col146 bigint,
+    col147 bigint,
+    col148 bigint,
+    col149 bigint,
+    col150 bigint
+);
+
+
+ALTER TABLE long_index_table OWNER TO postgres;
+
+--
+-- Name: long_primary_key_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE long_primary_key_table (
+    col1 bigint NOT NULL,
+    col2 bigint NOT NULL,
+    col3 bigint NOT NULL,
+    col4 bigint NOT NULL,
+    col5 bigint NOT NULL,
+    col6 bigint NOT NULL,
+    col7 bigint NOT NULL,
+    col8 bigint NOT NULL,
+    col9 bigint NOT NULL,
+    col10 bigint NOT NULL,
+    col11 bigint NOT NULL,
+    col12 bigint NOT NULL,
+    col13 bigint NOT NULL,
+    col14 bigint NOT NULL,
+    col15 bigint NOT NULL,
+    col16 bigint NOT NULL,
+    col17 bigint NOT NULL,
+    col18 bigint NOT NULL,
+    col19 bigint NOT NULL,
+    col20 bigint NOT NULL
+);
+
+
+ALTER TABLE long_primary_key_table OWNER TO postgres;
+
+--
+-- Name: materialized_view_source_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE materialized_view_source_table (
+    id bigint NOT NULL,
+    col1 bigint
+);
+
+
+ALTER TABLE materialized_view_source_table OWNER TO postgres;
+
+--
+-- Name: materialized_view; Type: MATERIALIZED VIEW; Schema: public; Owner: postgres
+--
+
+CREATE MATERIALIZED VIEW materialized_view AS
+ SELECT materialized_view_source_table.id,
+    materialized_view_source_table.col1
+   FROM materialized_view_source_table
+  WHERE ((materialized_view_source_table.id > 1) AND (materialized_view_source_table.id < 10))
+  WITH NO DATA;
+
+
+ALTER TABLE materialized_view OWNER TO postgres;
+
+--
+-- Name: no_primary_key_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE no_primary_key_table (
+    col1 bigint,
+    col2 bigint,
+    col3 text
+);
+
+
+ALTER TABLE no_primary_key_table OWNER TO postgres;
+
+--
+-- Name: not_null_constraints_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE not_null_constraints_table (
+    id bigint NOT NULL,
+    first_name text NOT NULL,
+    last_name text,
+    age integer,
+    CONSTRAINT not_null_constraints_table_age_check CHECK ((age IS NOT NULL))
+);
+
+
+ALTER TABLE not_null_constraints_table OWNER TO postgres;
+
+--
+-- Name: partitioned_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE partitioned_table (
+    id bigint NOT NULL,
+    col1 date NOT NULL
+)
+PARTITION BY RANGE (id, col1);
+
+
+ALTER TABLE partitioned_table OWNER TO postgres;
+
+--
+-- Name: policy_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE policy_table (
+    id bigint NOT NULL,
+    manager text,
+    data text
+);
+
+
+ALTER TABLE policy_table OWNER TO postgres;
+
+--
+-- Name: primary_key_bit; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_bit (
+    id bit(1) NOT NULL
+);
+
+
+ALTER TABLE primary_key_bit OWNER TO postgres;
+
+--
+-- Name: primary_key_bool; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_bool (
+    id boolean NOT NULL
+);
+
+
+ALTER TABLE primary_key_bool OWNER TO postgres;
+
+--
+-- Name: primary_key_bytea; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_bytea (
+    id bytea NOT NULL
+);
+
+
+ALTER TABLE primary_key_bytea OWNER TO postgres;
+
+--
+-- Name: primary_key_char; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_char (
+    id character(1) NOT NULL
+);
+
+
+ALTER TABLE primary_key_char OWNER TO postgres;
+
+--
+-- Name: primary_key_cidr; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_cidr (
+    id cidr NOT NULL
+);
+
+
+ALTER TABLE primary_key_cidr OWNER TO postgres;
+
+--
+-- Name: primary_key_composite_mixed; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_composite_mixed (
+    col_bool boolean NOT NULL,
+    col_int8 bigint NOT NULL,
+    col_char character(1) NOT NULL,
+    col_cidr cidr NOT NULL,
+    col_inet inet NOT NULL,
+    col_macaddr macaddr NOT NULL
+);
+
+
+ALTER TABLE primary_key_composite_mixed OWNER TO postgres;
+
+--
+-- Name: primary_key_composite_supported; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_composite_supported (
+    col_bool boolean NOT NULL,
+    col_int8 bigint NOT NULL,
+    col_char character(1) NOT NULL
+);
+
+
+ALTER TABLE primary_key_composite_supported OWNER TO postgres;
+
+--
+-- Name: primary_key_composite_unsupported; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_composite_unsupported (
+    col_cidr cidr NOT NULL,
+    col_inet inet NOT NULL,
+    col_macaddr macaddr NOT NULL
+);
+
+
+ALTER TABLE primary_key_composite_unsupported OWNER TO postgres;
+
+--
+-- Name: primary_key_date; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_date (
+    id date NOT NULL
+);
+
+
+ALTER TABLE primary_key_date OWNER TO postgres;
+
+--
+-- Name: primary_key_decimal; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_decimal (
+    id numeric NOT NULL
+);
+
+
+ALTER TABLE primary_key_decimal OWNER TO postgres;
+
+--
+-- Name: primary_key_float4; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_float4 (
+    id real NOT NULL
+);
+
+
+ALTER TABLE primary_key_float4 OWNER TO postgres;
+
+--
+-- Name: primary_key_float8; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_float8 (
+    id double precision NOT NULL
+);
+
+
+ALTER TABLE primary_key_float8 OWNER TO postgres;
+
+--
+-- Name: primary_key_inet; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_inet (
+    id inet NOT NULL
+);
+
+
+ALTER TABLE primary_key_inet OWNER TO postgres;
+
+--
+-- Name: primary_key_int2; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_int2 (
+    id smallint NOT NULL
+);
+
+
+ALTER TABLE primary_key_int2 OWNER TO postgres;
+
+--
+-- Name: primary_key_int4; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_int4 (
+    id integer NOT NULL
+);
+
+
+ALTER TABLE primary_key_int4 OWNER TO postgres;
+
+--
+-- Name: primary_key_int8; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_int8 (
+    id bigint NOT NULL
+);
+
+
+ALTER TABLE primary_key_int8 OWNER TO postgres;
+
+--
+-- Name: primary_key_interval; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_interval (
+    id interval NOT NULL
+);
+
+
+ALTER TABLE primary_key_interval OWNER TO postgres;
+
+--
+-- Name: primary_key_jsonb; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_jsonb (
+    id jsonb NOT NULL
+);
+
+
+ALTER TABLE primary_key_jsonb OWNER TO postgres;
+
+--
+-- Name: primary_key_macaddr; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_macaddr (
+    id macaddr NOT NULL
+);
+
+
+ALTER TABLE primary_key_macaddr OWNER TO postgres;
+
+--
+-- Name: primary_key_macaddr8; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_macaddr8 (
+    id macaddr8 NOT NULL
+);
+
+
+ALTER TABLE primary_key_macaddr8 OWNER TO postgres;
+
+--
+-- Name: primary_key_money; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_money (
+    id money NOT NULL
+);
+
+
+ALTER TABLE primary_key_money OWNER TO postgres;
+
+--
+-- Name: primary_key_pg_lsn; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_pg_lsn (
+    id pg_lsn NOT NULL
+);
+
+
+ALTER TABLE primary_key_pg_lsn OWNER TO postgres;
+
+--
+-- Name: primary_key_serial2; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_serial2 (
+    id smallint NOT NULL
+);
+
+
+ALTER TABLE primary_key_serial2 OWNER TO postgres;
+
+--
+-- Name: primary_key_serial2_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE primary_key_serial2_id_seq
+    AS smallint
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE primary_key_serial2_id_seq OWNER TO postgres;
+
+--
+-- Name: primary_key_serial2_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE primary_key_serial2_id_seq OWNED BY primary_key_serial2.id;
+
+
+--
+-- Name: primary_key_serial4; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_serial4 (
+    id integer NOT NULL
+);
+
+
+ALTER TABLE primary_key_serial4 OWNER TO postgres;
+
+--
+-- Name: primary_key_serial4_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE primary_key_serial4_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE primary_key_serial4_id_seq OWNER TO postgres;
+
+--
+-- Name: primary_key_serial4_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE primary_key_serial4_id_seq OWNED BY primary_key_serial4.id;
+
+
+--
+-- Name: primary_key_serial8; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_serial8 (
+    id bigint NOT NULL
+);
+
+
+ALTER TABLE primary_key_serial8 OWNER TO postgres;
+
+--
+-- Name: primary_key_serial8_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE primary_key_serial8_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE primary_key_serial8_id_seq OWNER TO postgres;
+
+--
+-- Name: primary_key_serial8_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE primary_key_serial8_id_seq OWNED BY primary_key_serial8.id;
+
+
+--
+-- Name: primary_key_text; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_text (
+    id text NOT NULL
+);
+
+
+ALTER TABLE primary_key_text OWNER TO postgres;
+
+--
+-- Name: primary_key_time; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_time (
+    id time without time zone NOT NULL
+);
+
+
+ALTER TABLE primary_key_time OWNER TO postgres;
+
+--
+-- Name: primary_key_timestamp; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_timestamp (
+    id timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE primary_key_timestamp OWNER TO postgres;
+
+--
+-- Name: primary_key_timestamptz; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_timestamptz (
+    id timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE primary_key_timestamptz OWNER TO postgres;
+
+--
+-- Name: primary_key_timetz; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_timetz (
+    id time with time zone NOT NULL
+);
+
+
+ALTER TABLE primary_key_timetz OWNER TO postgres;
+
+--
+-- Name: primary_key_tsquery; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_tsquery (
+    id tsquery NOT NULL
+);
+
+
+ALTER TABLE primary_key_tsquery OWNER TO postgres;
+
+--
+-- Name: primary_key_tsvector; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_tsvector (
+    id tsvector NOT NULL
+);
+
+
+ALTER TABLE primary_key_tsvector OWNER TO postgres;
+
+--
+-- Name: primary_key_uuid; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_uuid (
+    id uuid NOT NULL
+);
+
+
+ALTER TABLE primary_key_uuid OWNER TO postgres;
+
+--
+-- Name: primary_key_varbit; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE primary_key_varbit (
+    id bit varying NOT NULL
+);
+
+
+ALTER TABLE primary_key_varbit OWNER TO postgres;
+
+--
+-- Name: procedure_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE procedure_table (
+    id bigint NOT NULL,
+    col bigint
+);
+
+
+ALTER TABLE procedure_table OWNER TO postgres;
+
+--
+-- Name: publication_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE publication_table (
+    id bigint NOT NULL,
+    data text
+);
+
+
+ALTER TABLE publication_table OWNER TO postgres;
+
+--
+-- Name: rule_table_2; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE rule_table_2 (
+    id bigint NOT NULL,
+    data text
+);
+
+
+ALTER TABLE rule_table_2 OWNER TO postgres;
+
+--
+-- Name: rule_table_1; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW rule_table_1 AS
+ SELECT rule_table_2.id,
+    rule_table_2.data
+   FROM rule_table_2;
+
+
+ALTER TABLE rule_table_1 OWNER TO postgres;
+
+--
+-- Name: schema_migrations; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE schema_migrations (
+    version bigint NOT NULL,
+    dirty boolean NOT NULL
+);
+
+
+ALTER TABLE schema_migrations OWNER TO postgres;
+
+--
+-- Name: statistics_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE statistics_table (
+    id bigint NOT NULL,
+    col1 bigint,
+    col2 bigint
+);
+
+
+ALTER TABLE statistics_table OWNER TO postgres;
+
+--
+-- Name: table-!@#$; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE "table-!@#$" (
+    id bigint NOT NULL
+);
+
+
+ALTER TABLE "table-!@#$" OWNER TO postgres;
+
+--
+-- Name: types_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE types_table (
+    id bigint NOT NULL,
+    pair int8pair
+);
+
+
+ALTER TABLE types_table OWNER TO postgres;
+
+--
+-- Name: unique_constraint_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE unique_constraint_table (
+    id bigint NOT NULL,
+    col1 bigint,
+    col2 bigint,
+    col3 bigint,
+    col4 bigint,
+    col5 text,
+    col6 numeric,
+    col7 bigint,
+    col8 bigint
+);
+
+
+ALTER TABLE unique_constraint_table OWNER TO postgres;
+
+--
+-- Name: data_types col_serial2; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_types ALTER COLUMN col_serial2 SET DEFAULT nextval('data_types_col_serial2_seq'::regclass);
+
+
+--
+-- Name: data_types col_serial4; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_types ALTER COLUMN col_serial4 SET DEFAULT nextval('data_types_col_serial4_seq'::regclass);
+
+
+--
+-- Name: data_types col_serial8; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_types ALTER COLUMN col_serial8 SET DEFAULT nextval('data_types_col_serial8_seq'::regclass);
+
+
+--
+-- Name: primary_key_serial2 id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_serial2 ALTER COLUMN id SET DEFAULT nextval('primary_key_serial2_id_seq'::regclass);
+
+
+--
+-- Name: primary_key_serial4 id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_serial4 ALTER COLUMN id SET DEFAULT nextval('primary_key_serial4_id_seq'::regclass);
+
+
+--
+-- Name: primary_key_serial8 id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_serial8 ALTER COLUMN id SET DEFAULT nextval('primary_key_serial8_id_seq'::regclass);
+
+
+--
+-- Data for Name: custom_schema_table; Type: TABLE DATA; Schema: custom_schema; Owner: postgres
+--
+
+COPY custom_schema.custom_schema_table (id) FROM stdin;
 \.
 
 
 --
--- Data for Name: test; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.test (id, t, tz) FROM stdin;
-1	2019-10-28 15:00:00	2019-10-28 19:00:00+00
-2	2019-10-28 15:00:00	2019-10-28 15:00:00+00
-3	2019-10-28 15:00:00	2019-10-28 19:00:00+00
-4	2019-10-28 15:00:00.123457	2019-10-28 15:00:00.123457+00
-\.
-
---
--- Data for Name: test2; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.test2 (id, a, b, c, d, e, f, g) FROM stdin;
-1	t	\\x00010203deadbeef	2019-10-28	99.9	42	1234567890123456789012345678.123456789	hi
-2	f	\\x00010203424344	2018-11-28	12.3	6	1234567890123456789012345.1223456	hello
+COPY abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc (id) FROM stdin;
 \.
 
 
 --
--- Data for Name: test3; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: constraints_table; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.test3 (id, a, b) FROM stdin;
-1	{1,2,3}	{1,nice,foo}
-2	{6}	{i,am,not,a,number}
+COPY constraints_table (id, price, discounted_price) FROM stdin;
 \.
 
---
--- Name: cart cart_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.cart
-    ADD CONSTRAINT cart_pkey PRIMARY KEY (userid, productid);
-
 
 --
--- Name: test2 test2_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Data for Name: custom_collation_table; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.test2
-    ADD CONSTRAINT test2_pkey PRIMARY KEY (id);
+COPY custom_collation_table (id, data) FROM stdin;
+\.
 
 
 --
--- Name: test3 test3_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Data for Name: custom_domain_table; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.test3
-    ADD CONSTRAINT test3_pkey PRIMARY KEY (id);
+COPY custom_domain_table (id, col) FROM stdin;
+\.
+
 
 --
--- Name: test test_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Data for Name: data_types; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.test
-    ADD CONSTRAINT test_pkey PRIMARY KEY (id);
+COPY data_types (id, col_bit, col_bool, col_box, col_bytea, col_char, col_cidr, col_circle, col_date, col_decimal, col_float4, col_float8, col_inet, col_int2, col_int4, col_int8, col_interval, col_json, col_jsonb, col_line, col_lseg, col_macaddr, col_macaddr8, col_money, col_path, col_pg_lsn, col_pg_snapshot, col_point, col_polygon, col_serial2, col_serial4, col_serial8, col_text, col_time, col_timestamp, col_timestamptz, col_timetz, col_tsquery, col_tsvector, col_txid_snapshot, col_uuid, col_varbit, col_varchar, col_xml) FROM stdin;
+\.
+
 
 --
--- Name: SCHEMA public; Type: ACL; Schema: -; Owner: cloudsqlsuperuser
+-- Data for Name: default_values; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-REVOKE ALL ON SCHEMA public FROM cloudsqladmin;
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
+COPY default_values (id, col_bool, col_bytea, col_char, col_date, col_decimal, col_float4, col_float8, col_int2, col_int4, col_int8, col_json, col_jsonb, col_text, col_timestamp, col_timestamptz, col_varchar) FROM stdin;
+\.
+
+
+--
+-- Data for Name: exclusion_constraint_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY exclusion_constraint_table (id, room_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: foreign_key_table_1; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY foreign_key_table_1 (id, parent_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: foreign_key_table_2; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY foreign_key_table_2 (id_1, id_2, fk_tb_1_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: foreign_key_table_3; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY foreign_key_table_3 (id, fk_tb_2_id_1, fk_tb_2_id_2) FROM stdin;
+\.
+
+
+--
+-- Data for Name: foreign_key_table_4; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY foreign_key_table_4 (fk_tb_1_id, fk_tb_3_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: foreign_key_table_5; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY foreign_key_table_5 (id, fk_tb_1_id_1, fk_tb_1_id_2, fk_tb_1_id_3, fk_tb_1_id_4) FROM stdin;
+\.
+
+
+--
+-- Data for Name: foreign_key_table_6; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY foreign_key_table_6 (id, fk_tb_1_id_1, fk_tb_1_id_2) FROM stdin;
+\.
+
+
+--
+-- Data for Name: generated_columns; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY generated_columns (id, height_cm) FROM stdin;
+\.
+
+
+--
+-- Data for Name: index_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY index_table (id, col1, col2, col3, col4, col5, col6, col7, col8, data) FROM stdin;
+\.
+
+
+--
+-- Data for Name: inheritance_table_1; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY inheritance_table_1 (id, col1) FROM stdin;
+\.
+
+
+--
+-- Data for Name: inheritance_table_2; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY inheritance_table_2 (id, col1, col2) FROM stdin;
+\.
+
+
+--
+-- Data for Name: long_index_name_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY long_index_name_table (id, col1) FROM stdin;
+\.
+
+
+--
+-- Data for Name: long_index_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY long_index_table (id, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16, col17, col18, col19, col20, col21, col22, col23, col24, col25, col26, col27, col28, col29, col30, col31, col32, col33, col34, col35, col36, col37, col38, col39, col40, col41, col42, col43, col44, col45, col46, col47, col48, col49, col50, col51, col52, col53, col54, col55, col56, col57, col58, col59, col60, col61, col62, col63, col64, col65, col66, col67, col68, col69, col70, col71, col72, col73, col74, col75, col76, col77, col78, col79, col80, col81, col82, col83, col84, col85, col86, col87, col88, col89, col90, col91, col92, col93, col94, col95, col96, col97, col98, col99, col100, col101, col102, col103, col104, col105, col106, col107, col108, col109, col110, col111, col112, col113, col114, col115, col116, col117, col118, col119, col120, col121, col122, col123, col124, col125, col126, col127, col128, col129, col130, col131, col132, col133, col134, col135, col136, col137, col138, col139, col140, col141, col142, col143, col144, col145, col146, col147, col148, col149, col150) FROM stdin;
+\.
+
+
+--
+-- Data for Name: long_primary_key_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY long_primary_key_table (col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16, col17, col18, col19, col20) FROM stdin;
+\.
+
+
+--
+-- Data for Name: materialized_view_source_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY materialized_view_source_table (id, col1) FROM stdin;
+\.
+
+
+--
+-- Data for Name: no_primary_key_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY no_primary_key_table (col1, col2, col3) FROM stdin;
+\.
+
+
+--
+-- Data for Name: not_null_constraints_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY not_null_constraints_table (id, first_name, last_name, age) FROM stdin;
+\.
+
+
+--
+-- Data for Name: policy_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY policy_table (id, manager, data) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_bit; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_bit (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_bool; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_bool (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_bytea; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_bytea (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_char; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_char (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_cidr; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_cidr (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_composite_mixed; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_composite_mixed (col_bool, col_int8, col_char, col_cidr, col_inet, col_macaddr) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_composite_supported; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_composite_supported (col_bool, col_int8, col_char) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_composite_unsupported; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_composite_unsupported (col_cidr, col_inet, col_macaddr) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_date; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_date (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_decimal; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_decimal (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_float4; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_float4 (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_float8; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_float8 (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_inet; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_inet (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_int2; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_int2 (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_int4; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_int4 (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_int8; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_int8 (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_interval; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_interval (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_jsonb; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_jsonb (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_macaddr; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_macaddr (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_macaddr8; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_macaddr8 (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_money; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_money (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_pg_lsn; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_pg_lsn (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_serial2; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_serial2 (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_serial4; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_serial4 (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_serial8; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_serial8 (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_text; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_text (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_time; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_time (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_timestamp; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_timestamp (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_timestamptz; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_timestamptz (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_timetz; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_timetz (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_tsquery; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_tsquery (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_tsvector; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_tsvector (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_uuid; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_uuid (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: primary_key_varbit; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY primary_key_varbit (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: procedure_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY procedure_table (id, col) FROM stdin;
+\.
+
+
+--
+-- Data for Name: publication_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY publication_table (id, data) FROM stdin;
+\.
+
+
+--
+-- Data for Name: rule_table_2; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY rule_table_2 (id, data) FROM stdin;
+\.
+
+
+--
+-- Data for Name: schema_migrations; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY schema_migrations (version, dirty) FROM stdin;
+32	f
+\.
+
+
+--
+-- Data for Name: sequence_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY sequence_table (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: statistics_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY statistics_table (id, col1, col2) FROM stdin;
+\.
+
+
+--
+-- Data for Name: table-!@#$; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY "table-!@#$" (id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: types_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY types_table (id, pair) FROM stdin;
+\.
+
+
+--
+-- Data for Name: unique_constraint_table; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY unique_constraint_table (id, col1, col2, col3, col4, col5, col6, col7, col8) FROM stdin;
+\.
+
+
+--
+-- Name: custom_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('custom_sequence', 100, false);
+
+
+--
+-- Name: data_types_col_serial2_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('data_types_col_serial2_seq', 1, false);
+
+
+--
+-- Name: data_types_col_serial4_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('data_types_col_serial4_seq', 1, false);
+
+
+--
+-- Name: data_types_col_serial8_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('data_types_col_serial8_seq', 1, false);
+
+
+--
+-- Name: primary_key_serial2_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('primary_key_serial2_id_seq', 1, false);
+
+
+--
+-- Name: primary_key_serial4_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('primary_key_serial4_id_seq', 1, false);
+
+
+--
+-- Name: primary_key_serial8_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('primary_key_serial8_id_seq', 1, false);
+
+
+--
+-- Name: custom_schema_table custom_schema_table_pkey; Type: CONSTRAINT; Schema: custom_schema; Owner: postgres
+--
+
+ALTER TABLE ONLY custom_schema.custom_schema_table
+    ADD CONSTRAINT custom_schema_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabca_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc
+    ADD CONSTRAINT abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabca_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: constraints_table constraints_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY constraints_table
+    ADD CONSTRAINT constraints_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: custom_collation_table custom_collation_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY custom_collation_table
+    ADD CONSTRAINT custom_collation_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: custom_domain_table custom_domain_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY custom_domain_table
+    ADD CONSTRAINT custom_domain_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: data_types data_types_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY data_types
+    ADD CONSTRAINT data_types_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: default_values default_values_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY default_values
+    ADD CONSTRAINT default_values_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: exclusion_constraint_table exclusion_constraint_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY exclusion_constraint_table
+    ADD CONSTRAINT exclusion_constraint_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: exclusion_constraint_table exclusion_constraint_table_room_id_excl; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY exclusion_constraint_table
+    ADD CONSTRAINT exclusion_constraint_table_room_id_excl EXCLUDE USING hash (room_id WITH =);
+
+
+--
+-- Name: foreign_key_table_1 foreign_key_table_1_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_1
+    ADD CONSTRAINT foreign_key_table_1_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: foreign_key_table_2 foreign_key_table_2_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_2
+    ADD CONSTRAINT foreign_key_table_2_pkey PRIMARY KEY (id_1, id_2);
+
+
+--
+-- Name: foreign_key_table_3 foreign_key_table_3_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_3
+    ADD CONSTRAINT foreign_key_table_3_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: foreign_key_table_4 foreign_key_table_4_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_4
+    ADD CONSTRAINT foreign_key_table_4_pkey PRIMARY KEY (fk_tb_1_id, fk_tb_3_id);
+
+
+--
+-- Name: foreign_key_table_5 foreign_key_table_5_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_5
+    ADD CONSTRAINT foreign_key_table_5_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: foreign_key_table_6 foreign_key_table_6_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_6
+    ADD CONSTRAINT foreign_key_table_6_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: generated_columns generated_columns_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY generated_columns
+    ADD CONSTRAINT generated_columns_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: index_table index_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY index_table
+    ADD CONSTRAINT index_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: inheritance_table_1 inheritance_table_1_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY inheritance_table_1
+    ADD CONSTRAINT inheritance_table_1_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: long_index_name_table long_index_name_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY long_index_name_table
+    ADD CONSTRAINT long_index_name_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: long_index_table long_index_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY long_index_table
+    ADD CONSTRAINT long_index_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: long_primary_key_table long_primary_key_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY long_primary_key_table
+    ADD CONSTRAINT long_primary_key_table_pkey PRIMARY KEY (col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16, col17, col18, col19, col20);
+
+
+--
+-- Name: materialized_view_source_table materialized_view_source_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY materialized_view_source_table
+    ADD CONSTRAINT materialized_view_source_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: unique_constraint_table must_be_different; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY unique_constraint_table
+    ADD CONSTRAINT must_be_different UNIQUE (col2);
+
+
+--
+-- Name: no_primary_key_table no_primary_key_table_col2_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY no_primary_key_table
+    ADD CONSTRAINT no_primary_key_table_col2_key UNIQUE (col2);
+
+
+--
+-- Name: not_null_constraints_table not_null_constraints_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY not_null_constraints_table
+    ADD CONSTRAINT not_null_constraints_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: partitioned_table partitioned_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY partitioned_table
+    ADD CONSTRAINT partitioned_table_pkey PRIMARY KEY (id, col1);
+
+
+--
+-- Name: policy_table policy_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY policy_table
+    ADD CONSTRAINT policy_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_bit primary_key_bit_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_bit
+    ADD CONSTRAINT primary_key_bit_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_bool primary_key_bool_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_bool
+    ADD CONSTRAINT primary_key_bool_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_bytea primary_key_bytea_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_bytea
+    ADD CONSTRAINT primary_key_bytea_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_char primary_key_char_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_char
+    ADD CONSTRAINT primary_key_char_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_cidr primary_key_cidr_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_cidr
+    ADD CONSTRAINT primary_key_cidr_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_composite_mixed primary_key_composite_mixed_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_composite_mixed
+    ADD CONSTRAINT primary_key_composite_mixed_pkey PRIMARY KEY (col_bool, col_int8, col_char, col_cidr, col_inet, col_macaddr);
+
+
+--
+-- Name: primary_key_composite_supported primary_key_composite_supported_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_composite_supported
+    ADD CONSTRAINT primary_key_composite_supported_pkey PRIMARY KEY (col_bool, col_int8, col_char);
+
+
+--
+-- Name: primary_key_composite_unsupported primary_key_composite_unsupported_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_composite_unsupported
+    ADD CONSTRAINT primary_key_composite_unsupported_pkey PRIMARY KEY (col_cidr, col_inet, col_macaddr);
+
+
+--
+-- Name: primary_key_date primary_key_date_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_date
+    ADD CONSTRAINT primary_key_date_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_decimal primary_key_decimal_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_decimal
+    ADD CONSTRAINT primary_key_decimal_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_float4 primary_key_float4_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_float4
+    ADD CONSTRAINT primary_key_float4_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_float8 primary_key_float8_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_float8
+    ADD CONSTRAINT primary_key_float8_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_inet primary_key_inet_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_inet
+    ADD CONSTRAINT primary_key_inet_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_int2 primary_key_int2_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_int2
+    ADD CONSTRAINT primary_key_int2_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_int4 primary_key_int4_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_int4
+    ADD CONSTRAINT primary_key_int4_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_int8 primary_key_int8_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_int8
+    ADD CONSTRAINT primary_key_int8_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_interval primary_key_interval_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_interval
+    ADD CONSTRAINT primary_key_interval_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_jsonb primary_key_jsonb_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_jsonb
+    ADD CONSTRAINT primary_key_jsonb_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_macaddr8 primary_key_macaddr8_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_macaddr8
+    ADD CONSTRAINT primary_key_macaddr8_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_macaddr primary_key_macaddr_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_macaddr
+    ADD CONSTRAINT primary_key_macaddr_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_money primary_key_money_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_money
+    ADD CONSTRAINT primary_key_money_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_pg_lsn primary_key_pg_lsn_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_pg_lsn
+    ADD CONSTRAINT primary_key_pg_lsn_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_serial2 primary_key_serial2_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_serial2
+    ADD CONSTRAINT primary_key_serial2_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_serial4 primary_key_serial4_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_serial4
+    ADD CONSTRAINT primary_key_serial4_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_serial8 primary_key_serial8_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_serial8
+    ADD CONSTRAINT primary_key_serial8_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_text primary_key_text_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_text
+    ADD CONSTRAINT primary_key_text_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_time primary_key_time_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_time
+    ADD CONSTRAINT primary_key_time_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_timestamp primary_key_timestamp_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_timestamp
+    ADD CONSTRAINT primary_key_timestamp_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_timestamptz primary_key_timestamptz_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_timestamptz
+    ADD CONSTRAINT primary_key_timestamptz_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_timetz primary_key_timetz_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_timetz
+    ADD CONSTRAINT primary_key_timetz_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_tsquery primary_key_tsquery_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_tsquery
+    ADD CONSTRAINT primary_key_tsquery_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_tsvector primary_key_tsvector_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_tsvector
+    ADD CONSTRAINT primary_key_tsvector_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_uuid primary_key_uuid_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_uuid
+    ADD CONSTRAINT primary_key_uuid_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: primary_key_varbit primary_key_varbit_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY primary_key_varbit
+    ADD CONSTRAINT primary_key_varbit_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: procedure_table procedure_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY procedure_table
+    ADD CONSTRAINT procedure_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: rule_table_2 rule_table_2_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY rule_table_2
+    ADD CONSTRAINT rule_table_2_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY schema_migrations
+    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+
+
+--
+-- Name: sequence_table sequence_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY sequence_table
+    ADD CONSTRAINT sequence_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: statistics_table statistics_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY statistics_table
+    ADD CONSTRAINT statistics_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: table-!@#$ table-!@#$_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "table-!@#$"
+    ADD CONSTRAINT "table-!@#$_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: types_table types_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY types_table
+    ADD CONSTRAINT types_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: unique_constraint_table unique_constraint_table_col1_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY unique_constraint_table
+    ADD CONSTRAINT unique_constraint_table_col1_key UNIQUE (col1);
+
+
+--
+-- Name: unique_constraint_table unique_constraint_table_col3_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY unique_constraint_table
+    ADD CONSTRAINT unique_constraint_table_col3_key UNIQUE NULLS NOT DISTINCT (col3);
+
+
+--
+-- Name: unique_constraint_table unique_constraint_table_col4_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY unique_constraint_table
+    ADD CONSTRAINT unique_constraint_table_col4_key UNIQUE (col4);
+
+
+--
+-- Name: unique_constraint_table unique_constraint_table_col5_col6_col7_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY unique_constraint_table
+    ADD CONSTRAINT unique_constraint_table_col5_col6_col7_key UNIQUE (col5, col6, col7);
+
+
+--
+-- Name: unique_constraint_table unique_constraint_table_col8_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY unique_constraint_table
+    ADD CONSTRAINT unique_constraint_table_col8_key UNIQUE NULLS NOT DISTINCT (col8);
+
+
+--
+-- Name: unique_constraint_table unique_constraint_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY unique_constraint_table
+    ADD CONSTRAINT unique_constraint_table_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: col100_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col100_index ON long_index_table USING btree (col100);
+
+
+--
+-- Name: col101_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col101_index ON long_index_table USING btree (col101);
+
+
+--
+-- Name: col102_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col102_index ON long_index_table USING btree (col102);
+
+
+--
+-- Name: col103_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col103_index ON long_index_table USING btree (col103);
+
+
+--
+-- Name: col104_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col104_index ON long_index_table USING btree (col104);
+
+
+--
+-- Name: col105_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col105_index ON long_index_table USING btree (col105);
+
+
+--
+-- Name: col106_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col106_index ON long_index_table USING btree (col106);
+
+
+--
+-- Name: col107_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col107_index ON long_index_table USING btree (col107);
+
+
+--
+-- Name: col108_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col108_index ON long_index_table USING btree (col108);
+
+
+--
+-- Name: col109_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col109_index ON long_index_table USING btree (col109);
+
+
+--
+-- Name: col10_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col10_index ON long_index_table USING btree (col10);
+
+
+--
+-- Name: col110_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col110_index ON long_index_table USING btree (col110);
+
+
+--
+-- Name: col111_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col111_index ON long_index_table USING btree (col111);
+
+
+--
+-- Name: col112_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col112_index ON long_index_table USING btree (col112);
+
+
+--
+-- Name: col113_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col113_index ON long_index_table USING btree (col113);
+
+
+--
+-- Name: col114_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col114_index ON long_index_table USING btree (col114);
+
+
+--
+-- Name: col115_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col115_index ON long_index_table USING btree (col115);
+
+
+--
+-- Name: col116_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col116_index ON long_index_table USING btree (col116);
+
+
+--
+-- Name: col117_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col117_index ON long_index_table USING btree (col117);
+
+
+--
+-- Name: col118_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col118_index ON long_index_table USING btree (col118);
+
+
+--
+-- Name: col119_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col119_index ON long_index_table USING btree (col119);
+
+
+--
+-- Name: col11_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col11_index ON long_index_table USING btree (col11);
+
+
+--
+-- Name: col120_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col120_index ON long_index_table USING btree (col120);
+
+
+--
+-- Name: col121_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col121_index ON long_index_table USING btree (col121);
+
+
+--
+-- Name: col122_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col122_index ON long_index_table USING btree (col122);
+
+
+--
+-- Name: col123_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col123_index ON long_index_table USING btree (col123);
+
+
+--
+-- Name: col124_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col124_index ON long_index_table USING btree (col124);
+
+
+--
+-- Name: col125_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col125_index ON long_index_table USING btree (col125);
+
+
+--
+-- Name: col126_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col126_index ON long_index_table USING btree (col126);
+
+
+--
+-- Name: col127_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col127_index ON long_index_table USING btree (col127);
+
+
+--
+-- Name: col128_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col128_index ON long_index_table USING btree (col128);
+
+
+--
+-- Name: col129_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col129_index ON long_index_table USING btree (col129);
+
+
+--
+-- Name: col12_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col12_index ON long_index_table USING btree (col12);
+
+
+--
+-- Name: col130_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col130_index ON long_index_table USING btree (col130);
+
+
+--
+-- Name: col131_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col131_index ON long_index_table USING btree (col131);
+
+
+--
+-- Name: col132_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col132_index ON long_index_table USING btree (col132);
+
+
+--
+-- Name: col133_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col133_index ON long_index_table USING btree (col133);
+
+
+--
+-- Name: col134_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col134_index ON long_index_table USING btree (col134);
+
+
+--
+-- Name: col135_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col135_index ON long_index_table USING btree (col135);
+
+
+--
+-- Name: col136_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col136_index ON long_index_table USING btree (col136);
+
+
+--
+-- Name: col137_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col137_index ON long_index_table USING btree (col137);
+
+
+--
+-- Name: col138_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col138_index ON long_index_table USING btree (col138);
+
+
+--
+-- Name: col139_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col139_index ON long_index_table USING btree (col139);
+
+
+--
+-- Name: col13_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col13_index ON long_index_table USING btree (col13);
+
+
+--
+-- Name: col140_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col140_index ON long_index_table USING btree (col140);
+
+
+--
+-- Name: col141_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col141_index ON long_index_table USING btree (col141);
+
+
+--
+-- Name: col142_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col142_index ON long_index_table USING btree (col142);
+
+
+--
+-- Name: col143_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col143_index ON long_index_table USING btree (col143);
+
+
+--
+-- Name: col144_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col144_index ON long_index_table USING btree (col144);
+
+
+--
+-- Name: col145_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col145_index ON long_index_table USING btree (col145);
+
+
+--
+-- Name: col146_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col146_index ON long_index_table USING btree (col146);
+
+
+--
+-- Name: col147_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col147_index ON long_index_table USING btree (col147);
+
+
+--
+-- Name: col148_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col148_index ON long_index_table USING btree (col148);
+
+
+--
+-- Name: col149_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col149_index ON long_index_table USING btree (col149);
+
+
+--
+-- Name: col14_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col14_index ON long_index_table USING btree (col14);
+
+
+--
+-- Name: col150_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col150_index ON long_index_table USING btree (col150);
+
+
+--
+-- Name: col15_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col15_index ON long_index_table USING btree (col15);
+
+
+--
+-- Name: col16_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col16_index ON long_index_table USING btree (col16);
+
+
+--
+-- Name: col17_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col17_index ON long_index_table USING btree (col17);
+
+
+--
+-- Name: col18_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col18_index ON long_index_table USING btree (col18);
+
+
+--
+-- Name: col19_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col19_index ON long_index_table USING btree (col19);
+
+
+--
+-- Name: col1_abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabca; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col1_abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabca ON long_index_name_table USING btree (col1);
+
+
+--
+-- Name: col1_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col1_index ON long_index_table USING btree (col1);
+
+
+--
+-- Name: col1_nulls_first_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col1_nulls_first_index ON index_table USING btree (col1 NULLS FIRST);
+
+
+--
+-- Name: col20_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col20_index ON long_index_table USING btree (col20);
+
+
+--
+-- Name: col21_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col21_index ON long_index_table USING btree (col21);
+
+
+--
+-- Name: col22_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col22_index ON long_index_table USING btree (col22);
+
+
+--
+-- Name: col23_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col23_index ON long_index_table USING btree (col23);
+
+
+--
+-- Name: col24_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col24_index ON long_index_table USING btree (col24);
+
+
+--
+-- Name: col25_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col25_index ON long_index_table USING btree (col25);
+
+
+--
+-- Name: col26_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col26_index ON long_index_table USING btree (col26);
+
+
+--
+-- Name: col27_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col27_index ON long_index_table USING btree (col27);
+
+
+--
+-- Name: col28_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col28_index ON long_index_table USING btree (col28);
+
+
+--
+-- Name: col29_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col29_index ON long_index_table USING btree (col29);
+
+
+--
+-- Name: col2_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col2_index ON long_index_table USING btree (col2);
+
+
+--
+-- Name: col2_nulls_last_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col2_nulls_last_index ON index_table USING btree (col2);
+
+
+--
+-- Name: col30_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col30_index ON long_index_table USING btree (col30);
+
+
+--
+-- Name: col31_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col31_index ON long_index_table USING btree (col31);
+
+
+--
+-- Name: col32_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col32_index ON long_index_table USING btree (col32);
+
+
+--
+-- Name: col33_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col33_index ON long_index_table USING btree (col33);
+
+
+--
+-- Name: col34_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col34_index ON long_index_table USING btree (col34);
+
+
+--
+-- Name: col35_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col35_index ON long_index_table USING btree (col35);
+
+
+--
+-- Name: col36_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col36_index ON long_index_table USING btree (col36);
+
+
+--
+-- Name: col37_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col37_index ON long_index_table USING btree (col37);
+
+
+--
+-- Name: col38_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col38_index ON long_index_table USING btree (col38);
+
+
+--
+-- Name: col39_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col39_index ON long_index_table USING btree (col39);
+
+
+--
+-- Name: col3_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col3_index ON long_index_table USING btree (col3);
+
+
+--
+-- Name: col3_unique_nulls_distinct_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX col3_unique_nulls_distinct_index ON index_table USING btree (col3);
+
+
+--
+-- Name: col40_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col40_index ON long_index_table USING btree (col40);
+
+
+--
+-- Name: col41_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col41_index ON long_index_table USING btree (col41);
+
+
+--
+-- Name: col42_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col42_index ON long_index_table USING btree (col42);
+
+
+--
+-- Name: col43_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col43_index ON long_index_table USING btree (col43);
+
+
+--
+-- Name: col44_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col44_index ON long_index_table USING btree (col44);
+
+
+--
+-- Name: col45_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col45_index ON long_index_table USING btree (col45);
+
+
+--
+-- Name: col46_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col46_index ON long_index_table USING btree (col46);
+
+
+--
+-- Name: col47_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col47_index ON long_index_table USING btree (col47);
+
+
+--
+-- Name: col48_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col48_index ON long_index_table USING btree (col48);
+
+
+--
+-- Name: col49_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col49_index ON long_index_table USING btree (col49);
+
+
+--
+-- Name: col4_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col4_index ON long_index_table USING btree (col4);
+
+
+--
+-- Name: col4_unique_nulls_not_distinct_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX col4_unique_nulls_not_distinct_index ON index_table USING btree (col4) NULLS NOT DISTINCT;
+
+
+--
+-- Name: col50_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col50_index ON long_index_table USING btree (col50);
+
+
+--
+-- Name: col51_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col51_index ON long_index_table USING btree (col51);
+
+
+--
+-- Name: col52_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col52_index ON long_index_table USING btree (col52);
+
+
+--
+-- Name: col53_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col53_index ON long_index_table USING btree (col53);
+
+
+--
+-- Name: col54_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col54_index ON long_index_table USING btree (col54);
+
+
+--
+-- Name: col55_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col55_index ON long_index_table USING btree (col55);
+
+
+--
+-- Name: col56_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col56_index ON long_index_table USING btree (col56);
+
+
+--
+-- Name: col57_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col57_index ON long_index_table USING btree (col57);
+
+
+--
+-- Name: col58_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col58_index ON long_index_table USING btree (col58);
+
+
+--
+-- Name: col59_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col59_index ON long_index_table USING btree (col59);
+
+
+--
+-- Name: col5_expression_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col5_expression_index ON index_table USING btree (lower(col5));
+
+
+--
+-- Name: col5_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col5_index ON long_index_table USING btree (col5);
+
+
+--
+-- Name: col60_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col60_index ON long_index_table USING btree (col60);
+
+
+--
+-- Name: col61_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col61_index ON long_index_table USING btree (col61);
+
+
+--
+-- Name: col62_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col62_index ON long_index_table USING btree (col62);
+
+
+--
+-- Name: col63_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col63_index ON long_index_table USING btree (col63);
+
+
+--
+-- Name: col64_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col64_index ON long_index_table USING btree (col64);
+
+
+--
+-- Name: col65_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col65_index ON long_index_table USING btree (col65);
+
+
+--
+-- Name: col66_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col66_index ON long_index_table USING btree (col66);
+
+
+--
+-- Name: col67_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col67_index ON long_index_table USING btree (col67);
+
+
+--
+-- Name: col68_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col68_index ON long_index_table USING btree (col68);
+
+
+--
+-- Name: col69_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col69_index ON long_index_table USING btree (col69);
+
+
+--
+-- Name: col6_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col6_index ON long_index_table USING btree (col6);
+
+
+--
+-- Name: col6_partial_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col6_partial_index ON index_table USING btree (col6) WHERE (id = 1);
+
+
+--
+-- Name: col70_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col70_index ON long_index_table USING btree (col70);
+
+
+--
+-- Name: col71_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col71_index ON long_index_table USING btree (col71);
+
+
+--
+-- Name: col72_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col72_index ON long_index_table USING btree (col72);
+
+
+--
+-- Name: col73_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col73_index ON long_index_table USING btree (col73);
+
+
+--
+-- Name: col74_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col74_index ON long_index_table USING btree (col74);
+
+
+--
+-- Name: col75_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col75_index ON long_index_table USING btree (col75);
+
+
+--
+-- Name: col76_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col76_index ON long_index_table USING btree (col76);
+
+
+--
+-- Name: col77_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col77_index ON long_index_table USING btree (col77);
+
+
+--
+-- Name: col78_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col78_index ON long_index_table USING btree (col78);
+
+
+--
+-- Name: col79_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col79_index ON long_index_table USING btree (col79);
+
+
+--
+-- Name: col7_covering_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col7_covering_index ON index_table USING btree (col7) INCLUDE (data);
+
+
+--
+-- Name: col7_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col7_index ON long_index_table USING btree (col7);
+
+
+--
+-- Name: col80_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col80_index ON long_index_table USING btree (col80);
+
+
+--
+-- Name: col81_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col81_index ON long_index_table USING btree (col81);
+
+
+--
+-- Name: col82_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col82_index ON long_index_table USING btree (col82);
+
+
+--
+-- Name: col83_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col83_index ON long_index_table USING btree (col83);
+
+
+--
+-- Name: col84_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col84_index ON long_index_table USING btree (col84);
+
+
+--
+-- Name: col85_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col85_index ON long_index_table USING btree (col85);
+
+
+--
+-- Name: col86_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col86_index ON long_index_table USING btree (col86);
+
+
+--
+-- Name: col87_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col87_index ON long_index_table USING btree (col87);
+
+
+--
+-- Name: col88_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col88_index ON long_index_table USING btree (col88);
+
+
+--
+-- Name: col89_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col89_index ON long_index_table USING btree (col89);
+
+
+--
+-- Name: col8_collate_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col8_collate_index ON index_table USING btree (col8 COLLATE "C");
+
+
+--
+-- Name: col8_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col8_index ON long_index_table USING btree (col8);
+
+
+--
+-- Name: col90_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col90_index ON long_index_table USING btree (col90);
+
+
+--
+-- Name: col91_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col91_index ON long_index_table USING btree (col91);
+
+
+--
+-- Name: col92_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col92_index ON long_index_table USING btree (col92);
+
+
+--
+-- Name: col93_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col93_index ON long_index_table USING btree (col93);
+
+
+--
+-- Name: col94_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col94_index ON long_index_table USING btree (col94);
+
+
+--
+-- Name: col95_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col95_index ON long_index_table USING btree (col95);
+
+
+--
+-- Name: col96_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col96_index ON long_index_table USING btree (col96);
+
+
+--
+-- Name: col97_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col97_index ON long_index_table USING btree (col97);
+
+
+--
+-- Name: col98_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col98_index ON long_index_table USING btree (col98);
+
+
+--
+-- Name: col99_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col99_index ON long_index_table USING btree (col99);
+
+
+--
+-- Name: col9_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX col9_index ON long_index_table USING btree (col9);
+
+
+--
+-- Name: data_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX data_index ON custom_collation_table USING btree (data COLLATE custom_collation);
+
+
+--
+-- Name: custom_statistics; Type: STATISTICS; Schema: public; Owner: postgres
+--
+
+CREATE STATISTICS custom_statistics (dependencies) ON col1, col2 FROM statistics_table;
+
+
+ALTER STATISTICS custom_statistics OWNER TO postgres;
+
+--
+-- Name: foreign_key_table_1 foreign_key_table_1_parent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_1
+    ADD CONSTRAINT foreign_key_table_1_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES foreign_key_table_1(id);
+
+
+--
+-- Name: foreign_key_table_2 foreign_key_table_2_fk_tb_1_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_2
+    ADD CONSTRAINT foreign_key_table_2_fk_tb_1_id_fkey FOREIGN KEY (fk_tb_1_id) REFERENCES foreign_key_table_1(id);
+
+
+--
+-- Name: foreign_key_table_3 foreign_key_table_3_fk_tb_2_id_1_fk_tb_2_id_2_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_3
+    ADD CONSTRAINT foreign_key_table_3_fk_tb_2_id_1_fk_tb_2_id_2_fkey FOREIGN KEY (fk_tb_2_id_1, fk_tb_2_id_2) REFERENCES foreign_key_table_2(id_1, id_2);
+
+
+--
+-- Name: foreign_key_table_4 foreign_key_table_4_fk_tb_1_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_4
+    ADD CONSTRAINT foreign_key_table_4_fk_tb_1_id_fkey FOREIGN KEY (fk_tb_1_id) REFERENCES foreign_key_table_1(id);
+
+
+--
+-- Name: foreign_key_table_4 foreign_key_table_4_fk_tb_3_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_4
+    ADD CONSTRAINT foreign_key_table_4_fk_tb_3_id_fkey FOREIGN KEY (fk_tb_3_id) REFERENCES foreign_key_table_3(id);
+
+
+--
+-- Name: foreign_key_table_5 foreign_key_table_5_fk_tb_1_id_1_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_5
+    ADD CONSTRAINT foreign_key_table_5_fk_tb_1_id_1_fkey FOREIGN KEY (fk_tb_1_id_1) REFERENCES foreign_key_table_1(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: foreign_key_table_5 foreign_key_table_5_fk_tb_1_id_2_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_5
+    ADD CONSTRAINT foreign_key_table_5_fk_tb_1_id_2_fkey FOREIGN KEY (fk_tb_1_id_2) REFERENCES foreign_key_table_1(id) ON DELETE CASCADE;
+
+
+--
+-- Name: foreign_key_table_5 foreign_key_table_5_fk_tb_1_id_3_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_5
+    ADD CONSTRAINT foreign_key_table_5_fk_tb_1_id_3_fkey FOREIGN KEY (fk_tb_1_id_3) REFERENCES foreign_key_table_1(id) ON DELETE SET NULL;
+
+
+--
+-- Name: foreign_key_table_5 foreign_key_table_5_fk_tb_1_id_4_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_5
+    ADD CONSTRAINT foreign_key_table_5_fk_tb_1_id_4_fkey FOREIGN KEY (fk_tb_1_id_4) REFERENCES foreign_key_table_1(id) ON DELETE SET DEFAULT;
+
+
+--
+-- Name: foreign_key_table_6 foreign_key_table_6_fk_tb_1_id_1_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_6
+    ADD CONSTRAINT foreign_key_table_6_fk_tb_1_id_1_fkey FOREIGN KEY (fk_tb_1_id_1) REFERENCES foreign_key_table_1(id) MATCH FULL;
+
+
+--
+-- Name: foreign_key_table_6 foreign_key_table_6_fk_tb_1_id_2_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY foreign_key_table_6
+    ADD CONSTRAINT foreign_key_table_6_fk_tb_1_id_2_fkey FOREIGN KEY (fk_tb_1_id_2) REFERENCES foreign_key_table_1(id);
+
+
+--
+-- Name: policy_table custom_policy; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY custom_policy ON policy_table USING ((manager = CURRENT_USER));
+
+
+--
+-- Name: policy_table; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE policy_table ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: custom_publication; Type: PUBLICATION; Schema: -; Owner: postgres
+--
+
+CREATE PUBLICATION custom_publication WITH (publish = 'insert, update, delete, truncate');
+
+
+ALTER PUBLICATION custom_publication OWNER TO postgres;
+
+--
+-- Name: custom_publication publication_table; Type: PUBLICATION TABLE; Schema: public; Owner: postgres
+--
+
+ALTER PUBLICATION custom_publication ADD TABLE ONLY publication_table;
+
+
+--
+-- Name: SCHEMA google_vacuum_mgmt; Type: ACL; Schema: -; Owner: cloudsqladmin
+--
+
+GRANT USAGE ON SCHEMA google_vacuum_mgmt TO cloudsqlsuperuser;
+
+
+--
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: pg_database_owner
+--
+
 GRANT ALL ON SCHEMA public TO cloudsqlsuperuser;
-GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- Name: FUNCTION pg_replication_origin_advance(text, pg_lsn); Type: ACL; Schema: pg_catalog; Owner: cloudsqladmin
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_advance(text, pg_lsn) TO cloudsqlsuperuser;
+
+
+--
+-- Name: FUNCTION pg_replication_origin_create(text); Type: ACL; Schema: pg_catalog; Owner: cloudsqladmin
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_create(text) TO cloudsqlsuperuser;
+
+
+--
+-- Name: FUNCTION pg_replication_origin_drop(text); Type: ACL; Schema: pg_catalog; Owner: cloudsqladmin
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_drop(text) TO cloudsqlsuperuser;
+
+
+--
+-- Name: FUNCTION pg_replication_origin_oid(text); Type: ACL; Schema: pg_catalog; Owner: cloudsqladmin
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_oid(text) TO cloudsqlsuperuser;
+
+
+--
+-- Name: FUNCTION pg_replication_origin_progress(text, boolean); Type: ACL; Schema: pg_catalog; Owner: cloudsqladmin
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_progress(text, boolean) TO cloudsqlsuperuser;
+
+
+--
+-- Name: FUNCTION pg_replication_origin_session_is_setup(); Type: ACL; Schema: pg_catalog; Owner: cloudsqladmin
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_session_is_setup() TO cloudsqlsuperuser;
+
+
+--
+-- Name: FUNCTION pg_replication_origin_session_progress(boolean); Type: ACL; Schema: pg_catalog; Owner: cloudsqladmin
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_session_progress(boolean) TO cloudsqlsuperuser;
+
+
+--
+-- Name: FUNCTION pg_replication_origin_session_reset(); Type: ACL; Schema: pg_catalog; Owner: cloudsqladmin
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_session_reset() TO cloudsqlsuperuser;
+
+
+--
+-- Name: FUNCTION pg_replication_origin_session_setup(text); Type: ACL; Schema: pg_catalog; Owner: cloudsqladmin
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_session_setup(text) TO cloudsqlsuperuser;
+
+
+--
+-- Name: FUNCTION pg_replication_origin_xact_reset(); Type: ACL; Schema: pg_catalog; Owner: cloudsqladmin
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_xact_reset() TO cloudsqlsuperuser;
+
+
+--
+-- Name: FUNCTION pg_replication_origin_xact_setup(pg_lsn, timestamp with time zone); Type: ACL; Schema: pg_catalog; Owner: cloudsqladmin
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_replication_origin_xact_setup(pg_lsn, timestamp with time zone) TO cloudsqlsuperuser;
+
+
+--
+-- Name: FUNCTION pg_show_replication_origin_status(OUT local_id oid, OUT external_id text, OUT remote_lsn pg_lsn, OUT local_lsn pg_lsn); Type: ACL; Schema: pg_catalog; Owner: cloudsqladmin
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_show_replication_origin_status(OUT local_id oid, OUT external_id text, OUT remote_lsn pg_lsn, OUT local_lsn pg_lsn) TO cloudsqlsuperuser;
+
+
+--
+-- Name: materialized_view; Type: MATERIALIZED VIEW DATA; Schema: public; Owner: postgres
+--
+
+REFRESH MATERIALIZED VIEW materialized_view;
 
 
 --
 -- PostgreSQL database dump complete
 --
-

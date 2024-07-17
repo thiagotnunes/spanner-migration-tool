@@ -16,6 +16,7 @@ package postgres_test
 
 import (
 	"bufio"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -32,6 +33,7 @@ import (
 )
 
 const GoldenTestsDir = "../../test_data/goldens/postgres"
+const PgDumpFile = "../../test_data/pg_dump.test.out"
 
 func formatDdl(ddl []string) string {
 	return strings.ReplaceAll(strings.Join(ddl, "\n"), "\t", strings.Repeat(" ", 4))
@@ -73,5 +75,32 @@ func TestGoldens(t *testing.T) {
 			assert.Equal(t, tc.PSQLWant, formatDdl(actual))
 
 		})
+	}
+}
+
+func TestPgDump(t *testing.T) {
+	logger.Log = zap.NewNop()
+	schemaToSpanner := common.SchemaToSpannerImpl{}
+	conv := internal.MakeConv()
+	conv.SetLocation(time.UTC)
+	conv.SetSchemaMode()
+
+	file, err := os.Open(PgDumpFile)
+	if err != nil {
+		t.Fatalf("error when opening dump file: %s", err)
+	}
+
+	err = common.ProcessDbDump(
+		conv,
+		internal.NewReader(bufio.NewReader(file), nil),
+		postgres.DbDumpImpl{},
+	)
+	if err != nil {
+		t.Fatalf("error when processing dump: %s", err)
+	}
+
+	err = schemaToSpanner.SchemaToSpannerDDL(conv, postgres.ToDdlImpl{})
+	if err != nil {
+		t.Fatalf("error when converting schema to spanner ddl: %s", err)
 	}
 }
